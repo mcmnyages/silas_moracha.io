@@ -288,7 +288,7 @@ a:hover {
     line-height: 1.55;
     margin: 0 auto;
     text-align: center;
-    box-shadow: 0 0 0 10px #0078ff;
+    box-shadow: 0 0 0 10px #4d5966;
     display: block;
 }
 
@@ -1303,7 +1303,7 @@ a:hover {
     color: #fff;
     padding: 0 15px 5px;
     overflow: hidden;
-    background-color: #0078ff;
+    background-color: #42474d;
     border-radius: 4px;
 }
 
@@ -1339,6 +1339,16 @@ a:hover {
 /*--------------------------------------------------------------
 # Blog Single
 --------------------------------------------------------------*/
+
+#ciscobadges,
+#sololearncerts {
+    color: blue;
+}
+
+#ciscobadges:hover,
+#sololearncerts:hover {
+    color: #18d26e;
+}
 
 .post-box,
 .form-comments,
