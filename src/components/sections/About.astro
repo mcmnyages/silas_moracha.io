@@ -1,0 +1,71 @@
+---
+import { Picture } from 'astro:assets';
+import Section from '../Section.astro';
+import { site } from '../../config/site';
+import { ctfPlatforms } from '../../data/security';
+import { getGitHubData } from '../../lib/github';
+import portrait from '../../assets/images/hero.jpg';
+
+const gh = await getGitHubData();
+const yearsOnGitHub = gh.memberSince ? new Date().getFullYear() - gh.memberSince : 5;
+
+const stats = [
+  { value: `${yearsOnGitHub}+`, label: 'Years writing code' },
+  { value: gh.publicRepos ? `${gh.publicRepos}` : '25+', label: 'Public repositories' },
+  { value: `${ctfPlatforms.length}`, label: 'CTF platforms & events' },
+  { value: '3rd', label: 'National cyber hackathon' },
+];
+---
+
+<Section
+  id="about"
+  model="code"
+  index="01"
+  label="About"
+  meta={[site.location, 'B.Sc. IT, Maseno 2025']}
+  title="Build it. Break it. Make it trustworthy."
+>
+  <div class="grid grid-cols-1 gap-10 md:grid-cols-9 md:gap-8 2xl:grid-cols-12">
+    <figure class="group relative md:col-span-4 2xl:col-span-4" data-reveal>
+      <Picture
+        src={portrait}
+        formats={['avif', 'webp']}
+        widths={[360, 540, 720]}
+        sizes="(min-width: 768px) 360px, 100vw"
+        alt={`${site.name} at Google DevFest with his laptop`}
+        class="aspect-[4/5] w-full border border-line object-cover grayscale contrast-[1.05] transition duration-700 group-hover:grayscale-0"
+      />
+      <figcaption class="label mt-3 flex justify-between">
+        <span>DevFest, Western Kenya</span>
+        <span>Fig. 01</span>
+      </figcaption>
+    </figure>
+
+    <div class="space-y-5 text-lg leading-relaxed text-muted md:col-span-5 2xl:col-span-5" data-reveal style="--reveal-delay: 80ms">
+      <p class="text-xl leading-snug text-fg sm:text-2xl">
+        I'm a software engineer from Kenya who builds full-stack web apps and cares about getting the security details right.
+      </p>
+      <p>
+        I graduated from <span class="text-fg">Maseno University</span> with a B.Sc. in Information Technology (Second Class Upper,
+        2025). Most days I'm working in React, Node.js and TypeScript; most nights I'm deep in a CTF on Hack The Box, TryHackMe
+        or picoCTF, or studying for my next security certification.
+      </p>
+      <p>
+        Lately I've also been on the data side of AI: annotating training video for vision-language-action models and writing
+        benchmark tasks that test how well frontier models reason. Building, breaking and evaluating means I look at software from
+        three angles: does it work, is it safe, and can it be trusted?
+      </p>
+    </div>
+
+    <dl class="grid grid-cols-2 self-start border-t border-l border-line md:col-span-9 md:grid-cols-4 2xl:col-span-3 2xl:grid-cols-2" data-reveal>
+      {
+        stats.map((s) => (
+          <div class="border-r border-b border-line p-5 sm:p-6">
+            <dt class="label">{s.label}</dt>
+            <dd class="display mt-4 text-5xl sm:text-6xl">{s.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</Section>

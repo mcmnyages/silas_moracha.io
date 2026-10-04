@@ -1,0 +1,36 @@
+---
+import type { ModelName } from '../lib/wire3d';
+
+interface Props {
+  model: ModelName;
+  /** Accessible description; the canvas is decorative unless this is provided. */
+  label?: string;
+  speed?: number;
+  zoom?: number;
+  class?: string;
+}
+
+const { model, label, speed, zoom, class: className } = Astro.props;
+---
+
+<div class:list={['wire3d', className]}>
+  <canvas
+    data-wire3d={model}
+    data-speed={speed}
+    data-zoom={zoom}
+    class="block h-full w-full touch-pan-y"
+    role={label ? 'img' : undefined}
+    aria-label={label}
+    aria-hidden={label ? undefined : 'true'}></canvas>
+</div>
+
+<script>
+  import { mountWireframe, type ModelName } from '../lib/wire3d';
+
+  document.querySelectorAll<HTMLCanvasElement>('canvas[data-wire3d]').forEach((canvas) => {
+    mountWireframe(canvas, canvas.dataset.wire3d as ModelName, {
+      speed: canvas.dataset.speed ? Number(canvas.dataset.speed) : undefined,
+      zoom: canvas.dataset.zoom ? Number(canvas.dataset.zoom) : undefined,
+    });
+  });
+</script>

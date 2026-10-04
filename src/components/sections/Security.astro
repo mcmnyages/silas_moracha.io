@@ -1,0 +1,83 @@
+---
+import { Picture } from 'astro:assets';
+import Section from '../Section.astro';
+import Icon from '../Icon.astro';
+import { achievements, ctfPlatforms, securityFocus } from '../../data/security';
+import hackathon from '../../assets/images/hackathon-2023.jpg';
+
+const [award] = achievements;
+---
+
+<Section
+  id="security"
+  model="padlock"
+  index="04"
+  label="Security"
+  meta={[`${ctfPlatforms.length} platforms & events`, '1 national award', 'Next: CEH, OSCP']}
+  title="Breaking things to learn how they work."
+  intro="Capture The Flag competitions are my training ground: web exploitation, forensics, OSINT and cryptography, one rabbit hole at a time."
+>
+  <!-- Award -->
+  <article class="grid grid-cols-1 border border-line md:grid-cols-9" data-reveal>
+    <div class="group relative overflow-hidden md:col-span-5">
+      <Picture
+        src={hackathon}
+        formats={['avif', 'webp']}
+        widths={[480, 800, 1100]}
+        sizes="(min-width: 768px) 560px, 100vw"
+        alt="Silas receiving the 3rd place bootcamp team trophy at the CA Cyber Security Bootcamp and Hackathon 2023"
+        class="aspect-[4/3] h-full w-full object-cover object-[60%_30%] grayscale transition duration-700 group-hover:grayscale-0"
+      />
+    </div>
+    <div class="flex flex-col border-t border-line p-6 sm:p-8 md:col-span-4 md:border-t-0 md:border-l">
+      <p class="label flex items-center gap-2 text-accent"><Icon name="Trophy" size={14} /> Award · {award.year}</p>
+      <p class="display mt-6 text-7xl text-accent sm:text-8xl">3rd</p>
+      <h3 class="mt-4 font-display text-2xl font-bold tracking-tight">{award.title.replace(/^3rd Place · /, '')}</h3>
+      <p class="mt-1 text-sm text-fg">{award.event}</p>
+      <p class="mt-4 text-muted">{award.description}</p>
+    </div>
+  </article>
+
+  <div class="mt-16 grid grid-cols-1 gap-12 md:grid-cols-9 md:gap-8">
+    <div class="md:col-span-5" data-reveal>
+      <h3 class="label mb-4 text-fg">Where I play</h3>
+      <ul class="border-t border-line">
+        {
+          ctfPlatforms.map((p) => (
+            <li class="border-b border-line">
+              {p.url ? (
+                <a href={p.url} target="_blank" rel="noopener noreferrer" class="group flex items-baseline justify-between gap-3 py-3">
+                  <span class="font-medium transition-colors group-hover:text-accent">{p.name}</span>
+                  <span class="text-right text-sm text-muted">{p.note}</span>
+                </a>
+              ) : (
+                <div class="flex items-baseline justify-between gap-3 py-3">
+                  <span class="font-medium">{p.name}</span>
+                  <span class="text-right text-sm text-muted">{p.note}</span>
+                </div>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="md:col-span-4" data-reveal style="--reveal-delay: 80ms">
+      <h3 class="label mb-4 text-fg">Current focus</h3>
+      <ul class="border-t border-line">
+        {
+          securityFocus.map((f, i) => (
+            <li class="grid grid-cols-[2rem_1fr] border-b border-line py-3">
+              <span class="font-mono text-xs text-accent">{String(i + 1).padStart(2, '0')}</span>
+              <span>{f}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="mt-6 font-mono text-xs leading-relaxed text-muted">
+        <span class="text-fg">$ which</span> burpsuite wireshark exiftool<br />
+        /usr/bin/burpsuite /usr/bin/wireshark /usr/bin/exiftool
+      </p>
+    </div>
+  </div>
+</Section>

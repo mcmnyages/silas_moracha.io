@@ -1,0 +1,63 @@
+---
+/**
+ * Shared section frame. Left rail (desktop): index label, key facts and a 3D object
+ * relevant to the section, all sticky while you scroll. Content fills the remaining 9 columns.
+ */
+import Object3D from './Object3D.astro';
+import type { ModelName } from '../lib/wire3d';
+
+interface Props {
+  id: string;
+  index: string;
+  label: string;
+  title: string;
+  intro?: string;
+  /** Short facts shown under the label in the left rail (desktop). */
+  meta?: string[];
+  /** Wireframe 3D object shown in the rail. */
+  model?: ModelName;
+  class?: string;
+}
+
+const { id, index, label, title, intro, meta = [], model, class: className } = Astro.props;
+---
+
+<section id={id} class:list={['border-t border-line', className]}>
+  <div class="container-page grid grid-cols-1 gap-6 py-20 sm:py-28 lg:grid-cols-12 lg:gap-10">
+    <header class="lg:col-span-3">
+      <div class="flex items-start justify-between gap-4 lg:sticky lg:top-24 lg:block" data-reveal>
+        <div>
+          <p class="label flex items-center gap-3">
+            <span class="text-accent">{index}</span>
+            <span class="h-px w-8 bg-line"></span>
+            {label}
+          </p>
+          {
+            meta.length > 0 && (
+              <ul class="mt-8 hidden space-y-1.5 border-l border-line pl-4 font-mono text-xs text-muted lg:block">
+                {meta.map((m) => (
+                  <li>{m}</li>
+                ))}
+              </ul>
+            )
+          }
+        </div>
+        {
+          model && (
+            <Object3D
+              model={model}
+              class="-mt-8 -mr-2 size-28 shrink-0 cursor-grab active:cursor-grabbing sm:size-36 lg:mt-10 lg:mr-0 lg:aspect-square lg:size-auto lg:w-full lg:max-w-[24rem]"
+            />
+          )
+        }
+      </div>
+    </header>
+    <div class="min-w-0 lg:col-span-9">
+      <h2 class="display text-[clamp(2.5rem,6vw,6rem)] leading-[0.92]" data-reveal>{title}</h2>
+      {intro && <p class="mt-6 max-w-3xl text-lg text-muted xl:text-xl" data-reveal>{intro}</p>}
+      <div class="mt-12 sm:mt-16">
+        <slot />
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,105 @@
+---
+import { site } from '../config/site';
+import { skillGroups } from '../data/skills';
+import { projects } from '../data/projects';
+import { experience } from '../data/experience';
+import { getGitHubData } from '../lib/github';
+import { repoUrl } from '../lib/url';
+import type { TerminalData } from '../lib/terminal';
+
+interface Props {
+  /** Commands the terminal types by itself on load. */
+  autoplay?: string[];
+  /** Height classes for the scrollable body. */
+  bodyClass?: string;
+}
+
+const { autoplay = [], bodyClass = 'h-[20rem] sm:h-[22rem]' } = Astro.props;
+const gh = await getGitHubData();
+
+const data: TerminalData = {
+  name: site.name,
+  handle: site.handle,
+  role: site.role,
+  location: site.location,
+  email: site.email,
+  availability: site.availability,
+  socials: { ...site.socials },
+  skills: skillGroups,
+  projects: projects
+    .filter((p) => p.featured)
+    .map((p) => ({ title: p.title, url: repoUrl(site.handle, p.repo), description: p.description, stack: p.stack })),
+  experience: experience.map(({ role, company, period }) => ({ role, company, period })),
+  stats: { repos: gh.publicRepos, memberSince: gh.memberSince, topLanguages: gh.languages.map((l) => l.name) },
+};
+
+const chips = ['help', 'projects', 'neofetch', 'hire'];
+const prompt = `<span class="text-accent">${site.handle}@portfolio</span><span class="text-muted">:~$</span>`;
+---
+
+<div data-terminal data-autoplay={autoplay.join('|')}>
+  <div class="tilt" data-tilt="4">
+    <div class="overflow-hidden border border-line bg-surface/90 shadow-[0_40px_80px_-30px_rgb(0_0_0/0.55)] backdrop-blur-md">
+      <div class="flex items-center gap-2 border-b border-line px-4 py-3">
+        <span class="size-2.5 rounded-full bg-line"></span>
+        <span class="size-2.5 rounded-full bg-line"></span>
+        <span class="size-2.5 rounded-full bg-line"></span>
+        <p class="label ml-3 normal-case">~/{site.handle} — zsh</p>
+      </div>
+
+      <div
+        data-term-body
+        class:list={['cursor-text overflow-y-auto p-4 font-mono text-[0.78rem] leading-relaxed sm:p-5 sm:text-[0.82rem]', bodyClass]}
+      >
+        <!-- Pre-rendered so crawlers and no-JS visitors still see real content. -->
+        <div data-term-output aria-live="polite">
+          <div><Fragment set:html={prompt} /> whoami</div>
+          <div><span class="font-semibold">{site.name}</span> <span class="text-muted">(@{site.handle})</span></div>
+          <div>{site.role}</div>
+          <div class="text-muted">{site.location}</div>
+          <div>&nbsp;</div>
+          <div class="text-muted">This shell is real. Type <span class="text-accent">help</span> to explore.</div>
+          <div>&nbsp;</div>
+        </div>
+        <form class="flex items-center gap-2" autocomplete="off">
+          <label for="term-input" class="shrink-0">
+            <Fragment set:html={prompt} />
+            <span class="sr-only">Terminal command</span>
+          </label>
+          <input
+            id="term-input"
+            data-term-input
+            type="text"
+            spellcheck="false"
+            autocapitalize="off"
+            enterkeyhint="send"
+            class="min-w-0 flex-1 bg-transparent caret-accent outline-none placeholder:text-muted/60"
+            placeholder="type a command…"
+          />
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 flex flex-wrap items-center gap-2">
+    <span class="label">Try</span>
+    {
+      chips.map((cmd) => (
+        <button type="button" data-term-run={cmd} class="tag cursor-pointer transition hover:border-accent hover:text-accent">
+          $ {cmd}
+        </button>
+      ))
+    }
+  </div>
+
+  <script type="application/json" data-term-data set:html={JSON.stringify(data).replace(/</g, '\\u003c')} />
+</div>
+
+<script>
+  import { initTerminal, type TerminalData } from '../lib/terminal';
+
+  document.querySelectorAll<HTMLElement>('[data-terminal]').forEach((root) => {
+    const data = JSON.parse(root.querySelector('[data-term-data]')!.textContent!) as TerminalData;
+    initTerminal(root, data);
+  });
+</script>

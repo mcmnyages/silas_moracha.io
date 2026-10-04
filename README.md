@@ -1,74 +1,71 @@
-# Silas Moracha Portfolio Website
+# Silas Moracha · Portfolio
 
-Welcome to my professional portfolio! This website showcases my experience in frontend development, UI/UX design, and AI training.
+Personal portfolio of **Silas Moracha**: software engineer, cybersecurity enthusiast and AI training-data specialist.
 
-## 🎓 About Me
+**Live:** https://mcmnyages.github.io/silas_moracha.io/
 
-Graduate with a Bachelor's degree in Information Technology (Graduated November 14, 2025). I'm a passionate frontend developer specializing in:
-- Web Development & Design
-- API Integration
-- UI/UX Improvement
-- Responsive Web Design
-- AI & Machine Learning Applications
+Built with [Astro](https://astro.build), TypeScript and Tailwind CSS. Every page is pre-rendered to static HTML, so it loads fast and is fully readable by search engines and link-preview bots. JavaScript is used only for the extras: the terminal, the 3D objects, the theme toggle and animations.
 
-## 💼 Professional Experience
+## Features
 
-### SecretStartup - Frontend Developer (2024-2025)
-- Integrated APIs and connected frontend with backend services
-- Improved UI/UX for better user experience
-- Developed responsive web applications
-- Collaborated with team to deliver high-quality solutions
+- **Hero terminal** that types by itself on load and then takes commands (`help`, `projects`, `neofetch`, `hire`, …), over a full-width stream of terminal activity
+- **Hand-rolled wireframe 3D** (`src/lib/wire3d.ts`, no dependencies): a globe with network links from Eldoret, plus a padlock, neural network, server stack, CPU, graduation cap and envelope, one per section
+- **Live GitHub data** (latest repos, language breakdown, repo count) fetched at build time and refreshed weekly by CI
+- Editorial layout on a 12-column grid, one accent colour (`--accent` in `src/styles/global.css`), dark/light theme
+- Near full-bleed layout that uses wide screens; subtle 3D tilt on featured projects and the terminal; all motion respects `prefers-reduced-motion`
+- SEO: canonical URLs, Open Graph/Twitter cards, JSON-LD `Person` schema, sitemap and robots.txt
+- Optimised images (AVIF/WebP, responsive sizes) and self-hosted fonts
 
-### AI Training Programs
-- **Atlas Capture**: Image processing and annotation
-- **Afterquery**: Data annotation and AI model training
+## Editing content
 
-## 🛠 Skills
+You rarely need to touch components. Content lives in plain TypeScript files:
 
-**Frontend Technologies:**
-- HTML5 (85%)
-- CSS3 & Responsive Design (82%)
-- JavaScript (80%)
-- React & API Integration (75%)
+| What | File |
+| --- | --- |
+| Name, role, email, socials, SEO text, contact form key | `src/config/site.ts` |
+| Jobs and roles | `src/data/experience.ts` |
+| Projects | `src/data/projects.ts` |
+| Skills | `src/data/skills.ts` |
+| CTFs, achievements, security focus | `src/data/security.ts` |
+| Education, certifications, testimonial | `src/data/education.ts` |
+| Photos | `src/assets/images/` |
 
-**Other Technologies:**
-- Python (73%)
-- Java (56%)
-- UI/UX Design (78%)
+After changing your photo, name or role, run `npm run images` to regenerate the social-preview image (`public/og.png`).
 
-## 🎯 Services
+## Development
 
-- **Frontend Development** - Expert in modern web technologies
-- **UI/UX Design** - Creating intuitive and beautiful interfaces
-- **Responsive Design** - Mobile-first approach
-- **API Integration** - Seamless backend connectivity
-- **AI Training** - Image processing and data annotation
-- **Cybersecurity** - Security-conscious development
+Requires Node.js 22.12+.
 
-## 📚 Education & Certifications
+```sh
+npm install
+npm run dev       # http://localhost:4321/silas_moracha.io/
+npm run build     # type-check + production build into dist/
+npm run preview   # serve the production build
+```
 
-- **Maseno University** - Bachelor's in Information Technology
-- **Cisco NetAcad** - Networking certifications
-- **SoloLearn** - Multiple programming certificates
+Set `GITHUB_TOKEN` locally if the GitHub API rate-limits you; without it, the GitHub sections are simply hidden.
 
-## 📱 Activities & Community
+## Project structure
 
-- **GDSC Maseno** - Cybersecurity Lead
-- **CA Bootcamp & Hackathon** - Participant
-- **Chokecity Entertainment** - Website Design Project
+```
+src/
+├── config/site.ts         # identity & SEO, the single source of truth
+├── data/                  # content (experience, projects, skills, …)
+├── components/
+│   ├── sections/          # Hero, About, Experience, Projects, Security, Skills, Education, Contact
+│   ├── Terminal.astro     # interactive terminal (logic in lib/terminal.ts)
+│   ├── SEO.astro          # meta tags + structured data
+│   └── …
+├── layouts/BaseLayout.astro
+├── lib/                   # github.ts (build-time API), terminal.ts, theme.ts, url.ts
+├── pages/                 # index, 404, robots.txt
+└── styles/global.css      # design tokens (dark/light) + Tailwind
+```
 
-## 📞 Get In Touch
+## Deployment
 
-- **Email:** morachasilas@gmail.com
-- **Phone:** +254701644239
-- **Location:** Kisumu, Kenya
-- **GitHub:** [mcmnyages](https://github.com/mcmnyages)
-- **LinkedIn:** [Silas Moracha](https://www.linkedin.com/in/silas-moracha/)
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds the site and publishes it to GitHub Pages. It also rebuilds every Monday so GitHub stats stay current.
 
-## 🌐 Live Website
+One-time setup: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
-Visit my portfolio at: https://mcmnyages.github.io/silas_moracha.io/
-
----
-
-**"Learning never stops. I'm constantly evolving my skills and pushing the boundaries of what's possible in web development."**
+To move to a custom domain, or to rename the repo to `mcmnyages.github.io`, update `SITE` and `BASE` in `astro.config.mjs`.

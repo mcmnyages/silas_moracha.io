@@ -1,0 +1,185 @@
+---
+import Section from '../Section.astro';
+import Icon from '../Icon.astro';
+import { site } from '../../config/site';
+import { projects } from '../../data/projects';
+import { getGitHubData } from '../../lib/github';
+import { repoUrl } from '../../lib/url';
+
+const gh = await getGitHubData();
+const repoInfo = new Map(gh.repos.map((r) => [r.name.toLowerCase(), r]));
+
+const featured = projects.filter((p) => p.featured);
+const others = projects.filter((p) => !p.featured);
+
+// "Latest from GitHub": recently pushed repos that aren't already showcased above.
+const showcased = new Set(projects.flatMap((p) => [p.repo, ...(p.related ?? []).map((r) => r.repo)]).map((n) => n.toLowerCase()));
+const hidden = new Set([site.handle, 'silas_moracha.io', 'silas_moracha'].map((n) => n.toLowerCase()));
+const latest = gh.repos.filter((r) => !showcased.has(r.name.toLowerCase()) && !hidden.has(r.name.toLowerCase())).slice(0, 6);
+
+const pad = (n: number) => String(n).padStart(2, '0');
+const yearOf = (repo: string) => {
+  const info = repoInfo.get(repo.toLowerCase());
+  return info ? new Date(info.pushedAt).getFullYear() : '';
+};
+const timeAgo = (iso: string) => {
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+  if (days < 1) return 'today';
+  if (days < 30) return `${days}d ago`;
+  if (days < 365) return `${Math.floor(days / 30)}mo ago`;
+  return `${Math.floor(days / 365)}y ago`;
+};
+---
+
+<Section
+  id="projects"
+  model="servers"
+  index="03"
+  label="Selected work"
+  meta={[`${projects.length} selected projects`, ...(gh.publicRepos ? [`${gh.publicRepos} public repos`] : []), 'All open source']}
+  title="Things I've built."
+  intro="Full-stack apps, security, AI agents and mobile. Everything is open source on GitHub."
+>
+  <!-- Featured -->
+  <ul class="grid grid-cols-1 gap-5 md:grid-cols-2">
+    {
+      featured.map((p, i) => {
+        const code = repoUrl(site.handle, p.repo);
+        return (
+          <li data-reveal style={`--reveal-delay: ${(i % 2) * 80}ms`}>
+            <article class="tilt group relative flex h-full flex-col overflow-hidden border border-line bg-surface p-6 transition-colors hover:border-fg/40 sm:p-8" data-tilt="5">
+              <span
+                class="display pointer-events-none absolute -right-2 -bottom-6 text-[9rem] text-line/70 transition-colors group-hover:text-accent/15"
+                aria-hidden="true"
+              >
+                {pad(i + 1)}
+              </span>
+
+              <div class="label flex items-center justify-between">
+                <span>{p.category}</span>
+                <span>{yearOf(p.repo)}</span>
+              </div>
+
+              <h3 class="tilt-pop mt-8 font-display text-3xl font-bold tracking-tight [font-stretch:108%] sm:text-4xl">{p.title}</h3>
+              <p class="mt-4 max-w-md text-muted">{p.description}</p>
+
+              {p.highlights && (
+                <ul class="mt-5 space-y-1.5 text-sm text-muted">
+                  {p.highlights.map((h) => (
+                    <li class="grid grid-cols-[1.25rem_1fr]">
+                      <span class="text-accent">—</span>
+                      {h}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <ul class="relative mt-6 flex flex-wrap gap-1.5" aria-label="Tech stack">
+                {p.stack.map((s) => (
+                  <li class="tag bg-surface">{s}</li>
+                ))}
+              </ul>
+
+              <div class="relative mt-auto flex flex-wrap items-center gap-x-6 gap-y-2 pt-8 font-mono text-sm">
+                <a href={code} target="_blank" rel="noopener noreferrer" class="link inline-flex items-center gap-1.5">
+                  <Icon name="github" size={15} /> Source
+                </a>
+                {p.liveUrl && (
+                  <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" class="link inline-flex items-center gap-1.5">
+                    Live demo <Icon name="ArrowUpRight" size={15} />
+                  </a>
+                )}
+                {p.related?.map((r) => (
+                  <a href={repoUrl(site.handle, r.repo)} target="_blank" rel="noopener noreferrer" class="link text-muted">
+                    {r.label}
+                  </a>
+                ))}
+              </div>
+            </article>
+          </li>
+        );
+      })
+    }
+  </ul>
+
+  <!-- Index of other projects -->
+  <h3 class="label mt-20 mb-4 text-fg" data-reveal>More projects</h3>
+  <ul class="border-t border-line">
+    {
+      others.map((p, i) => {
+        const code = repoUrl(site.handle, p.repo);
+        return (
+          <li data-reveal>
+            <a
+              href={p.liveUrl ?? code}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="group grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-4 border-b border-line py-5 transition-colors hover:bg-surface md:grid-cols-[2.5rem_minmax(0,1.2fr)_minmax(0,1fr)_4rem_auto] md:px-2"
+            >
+              <span class="font-mono text-sm text-muted">{pad(featured.length + i + 1)}</span>
+              <span>
+                <span class="font-display text-xl font-bold tracking-tight transition-colors group-hover:text-accent">{p.title}</span>
+                <span class="mt-1 block text-sm text-muted">{p.description}</span>
+              </span>
+              <span class="hidden font-mono text-xs text-muted md:block">{p.stack.join(' / ')}</span>
+              <span class="hidden font-mono text-xs text-muted md:block">{yearOf(p.repo)}</span>
+              <Icon name="ArrowUpRight" size={18} class="text-muted transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+
+  {
+    (latest.length > 0 || gh.languages.length > 0) && (
+      <div class="mt-20 grid grid-cols-1 gap-12 md:grid-cols-9 md:gap-8">
+        {latest.length > 0 && (
+          <div class="md:col-span-5">
+            <h3 class="label mb-4 text-fg" data-reveal>
+              Latest on GitHub <span class="text-muted">· synced at build</span>
+            </h3>
+            <ul class="border-t border-line" data-reveal>
+              {latest.map((r) => (
+                <li>
+                  <a
+                    href={r.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="group flex items-baseline justify-between gap-4 border-b border-line py-3 font-mono text-sm"
+                  >
+                    <span class="truncate transition-colors group-hover:text-accent">{r.name}</span>
+                    <span class="shrink-0 text-xs text-muted">
+                      {r.language ?? '—'} · {timeAgo(r.pushedAt)}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {gh.languages.length > 0 && (
+          <div class="md:col-span-4" data-reveal>
+            <h3 class="label mb-4 text-fg">Languages across {gh.languages.reduce((a, l) => a + l.count, 0)} repos</h3>
+            <ul class="space-y-3 border-t border-line pt-4">
+              {gh.languages.slice(0, 7).map((l, i) => (
+                <li class="grid grid-cols-[6.5rem_1fr_3rem] items-center gap-3 font-mono text-xs">
+                  <span>{l.name}</span>
+                  <span class="h-1.5 bg-surface-2">
+                    <span class:list={['block h-full', i === 0 ? 'bg-accent' : 'bg-fg/70']} style={`width:${(l.percent / gh.languages[0].percent) * 100}%`} />
+                  </span>
+                  <span class="text-right text-muted">{l.percent}%</span>
+                </li>
+              ))}
+            </ul>
+            <a href={site.socials.github} target="_blank" rel="noopener noreferrer" class="btn btn-line mt-6 w-full justify-between">
+              All repositories <Icon name="ArrowUpRight" size={16} />
+            </a>
+          </div>
+        )}
+      </div>
+    )
+  }
+</Section>
+

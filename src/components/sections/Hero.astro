@@ -1,0 +1,145 @@
+---
+import Icon from '../Icon.astro';
+import Terminal from '../Terminal.astro';
+import LogStream from '../LogStream.astro';
+import Object3D from '../Object3D.astro';
+import { site } from '../../config/site';
+import { experience } from '../../data/experience';
+
+const current = experience[0];
+const previous = experience.find((e) => e.type === 'Full-time');
+const year = new Date().getFullYear();
+---
+
+<section id="top" class="relative isolate overflow-hidden">
+  <LogStream />
+  <!-- Clear a calm area behind the name so the foreground stays readable. -->
+  <div
+    class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_70%_60%_at_22%_58%,var(--bg)_35%,transparent_75%)] lg:bg-[radial-gradient(ellipse_48%_62%_at_24%_55%,var(--bg)_40%,transparent_80%)]"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="container-page relative flex min-h-[100svh] flex-col pt-20 pb-6 sm:pt-24">
+    <!-- Meta strip -->
+    <div class="label grid grid-cols-2 gap-y-2 border-b border-line pb-4 md:grid-cols-4" data-reveal>
+      <span class="inline-flex items-center gap-2 text-fg"><span class="status-dot"></span> Available for work</span>
+      <span class="text-right md:text-left">{site.location}</span>
+      <span class="hidden md:block">Local time <span id="clock" class="text-fg">EAT</span></span>
+      <span class="hidden text-right md:block">Portfolio ©{year}</span>
+    </div>
+
+    <div class="grid flex-1 grid-cols-1 items-center gap-12 py-10 lg:grid-cols-12 lg:gap-10 lg:py-8">
+      <!-- Identity -->
+      <div class="relative lg:col-span-7">
+        <!-- Globe sits behind the name on phones; it moves next to the terminal on desktop. -->
+        <Object3D
+          model="globe"
+          speed={0.12}
+          class="pointer-events-none absolute -top-16 -right-24 -z-10 size-72 opacity-50 sm:size-96 lg:hidden"
+        />
+        <p class="label mb-5 sm:mb-7" data-reveal>
+          <span class="text-accent">&gt;</span>{' '}
+          <span id="typed" class="cursor-blink text-fg">{site.roles[0]}</span>
+        </p>
+        <h1 class="display text-[19.5vw] lg:text-[min(11rem,8.4vw)]" data-reveal style="--reveal-delay: 80ms">
+          Silas<br />Moracha<span class="text-accent">.</span>
+          <span class="sr-only"> {site.role}</span>
+        </h1>
+        <p class="mt-8 max-w-2xl text-lg leading-relaxed sm:text-xl xl:text-2xl" data-reveal style="--reveal-delay: 160ms">
+          {site.tagline}
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3" data-reveal style="--reveal-delay: 220ms">
+          <a href="#projects" class="btn btn-solid min-w-44 justify-between">
+            View work <Icon name="ArrowDown" size={16} />
+          </a>
+          <a href="#contact" class="btn btn-line min-w-44 justify-between">
+            Contact <Icon name="ArrowUpRight" size={16} />
+          </a>
+        </div>
+      </div>
+
+      <!-- Live terminal over a networked globe -->
+      <div class="relative lg:col-span-5" data-reveal style="--reveal-delay: 260ms">
+        <Object3D
+          model="globe"
+          label="Wireframe globe with network links from Eldoret, Kenya"
+          speed={0.12}
+          zoom={1.1}
+          class="absolute -top-[34%] -right-[4%] -z-10 hidden aspect-square w-[64%] cursor-grab active:cursor-grabbing lg:block"
+        />
+        <div class="lg:mt-24 lg:w-[90%]">
+          <Terminal autoplay={['neofetch']} bodyClass="h-[19rem] sm:h-[22rem] xl:h-[24rem]" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom strip -->
+    <dl
+      class="grid grid-cols-1 gap-x-6 gap-y-3 border-t border-line pt-5 font-mono text-[0.8rem] sm:grid-cols-2 lg:grid-cols-4"
+      data-reveal
+      style="--reveal-delay: 320ms"
+    >
+      <div class="flex gap-3">
+        <dt class="w-12 shrink-0 text-muted">Now</dt>
+        <dd>{current.role} <span class="text-muted">@</span> {current.company}</dd>
+      </div>
+      {
+        previous && (
+          <div class="flex gap-3">
+            <dt class="w-12 shrink-0 text-muted">Prev</dt>
+            <dd>
+              {previous.role} <span class="text-muted">@</span> {previous.company}
+            </dd>
+          </div>
+        )
+      }
+      <div class="flex gap-3">
+        <dt class="w-12 shrink-0 text-muted">Edu</dt>
+        <dd>B.Sc. IT <span class="text-muted">@</span> Maseno University '25</dd>
+      </div>
+      <div class="hidden justify-end gap-3 lg:flex">
+        <dt class="text-muted">Scroll</dt>
+        <dd><Icon name="ArrowDown" size={14} class="mt-0.5 animate-bounce" /></dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<script>
+  import { site } from '../../config/site';
+
+  // Local time in Eldoret (EAT, UTC+3).
+  const clock = document.getElementById('clock');
+  if (clock) {
+    const fmt = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Nairobi' });
+    const tick = () => (clock.textContent = `${fmt.format(new Date())} EAT`);
+    tick();
+    setInterval(tick, 30_000);
+  }
+
+  // Typing effect cycling through roles.
+  const typed = document.getElementById('typed');
+  if (typed && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const roles = site.roles;
+    let role = 0;
+    let char = roles[0].length;
+    let deleting = true;
+    const tick = () => {
+      const word = roles[role];
+      char += deleting ? -1 : 1;
+      typed.textContent = word.slice(0, char);
+      let delay = deleting ? 35 : 70;
+      if (!deleting && char === word.length) {
+        deleting = true;
+        delay = 2400;
+      } else if (deleting && char === 0) {
+        deleting = false;
+        role = (role + 1) % roles.length;
+        delay = 300;
+      }
+      setTimeout(tick, delay);
+    };
+    setTimeout(tick, 2600);
+  }
+</script>
