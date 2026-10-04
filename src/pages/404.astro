@@ -1,31 +1,62 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
+import TerminalBackdrop from '../components/TerminalBackdrop.astro';
+import TerminalShell from '../components/TerminalShell.astro';
 import { site } from '../config/site';
 import { withBase } from '../lib/url';
+
+const home = withBase('/');
 ---
 
 <BaseLayout title={`404 · Page not found | ${site.name}`} description="This page does not exist." noindex>
-  <section class="container-page flex min-h-[100svh] flex-col justify-center pt-16 pb-10">
-    <p class="label">Error · not found</p>
-    <h1 class="display mt-6 text-[38vw] leading-[0.8] lg:text-[22rem]">
-      4<span class="text-accent">0</span>4
+  <TerminalBackdrop />
+
+  <section class="container-page relative z-10 flex min-h-[100svh] flex-col justify-center pt-24 pb-10">
+    <p class="label">HTTP 404 · route not found</p>
+
+    <h1 class="display glitch mt-4 text-[34vw] leading-[0.8] lg:text-[20rem]" aria-label="404">
+      4<span class="text-accent zero" aria-hidden="true">0</span>4
     </h1>
-    <div class="mt-10 grid grid-cols-1 gap-6 border-t border-line pt-6 md:grid-cols-12">
-      <p class="font-mono text-sm md:col-span-6">
-        <span class="text-accent">{site.handle}@portfolio</span><span class="text-muted">:~$</span> cd <span id="path">this-page</span><br />
-        <span class="text-muted">cd: no such file or directory</span>
-      </p>
-      <div class="md:col-span-6 md:text-right">
-        <a href={withBase('/')} class="btn btn-solid">
-          <Icon name="ArrowLeft" size={16} /> Back home
-        </a>
+
+    <div class="mt-10 grid grid-cols-1 gap-8 border-t border-line pt-6 lg:grid-cols-12">
+      <div class="lg:col-span-4">
+        <p class="max-w-sm text-sm leading-relaxed text-muted">
+          The page you asked for isn't on this server. The URL may be mistyped, or the page moved.
+          Use the shell to find your way back, or go straight home.
+        </p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href={home} class="btn btn-solid">
+            <Icon name="ArrowLeft" size={16} /> Back home
+          </a>
+          <a href={`${home}#projects`} class="btn">View work</a>
+        </div>
+      </div>
+
+      <div class="lg:col-span-8">
+        <TerminalShell handle={site.handle} name={site.name} home={home} />
+        <p class="mt-3 text-xs text-muted">Try: <code>help</code> · <code>ls</code> · <code>cd projects</code> · <code>sudo</code></p>
       </div>
     </div>
   </section>
 </BaseLayout>
 
-<script>
-  const el = document.getElementById('path');
-  if (el) el.textContent = window.location.pathname.split('/').filter(Boolean).pop() ?? 'this-page';
-</script>
+<style>
+  /* One orchestrated moment: the zero glitches once on load, then holds still. */
+  .glitch .zero {
+    display: inline-block;
+    animation: zero-glitch 900ms steps(1, end) 1 both;
+  }
+  @keyframes zero-glitch {
+    0%   { transform: translate(0, 0); opacity: 1; }
+    10%  { transform: translate(-0.04em, 0.02em); text-shadow: 0.03em 0 currentColor; opacity: 0.4; }
+    20%  { transform: translate(0.05em, -0.02em); opacity: 1; }
+    30%  { opacity: 0; }
+    40%  { transform: translate(0.03em, 0); opacity: 1; text-shadow: -0.03em 0 currentColor; }
+    55%  { transform: translate(-0.02em, 0.01em); opacity: 0.2; text-shadow: none; }
+    70%  { transform: translate(0, 0); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .glitch .zero { animation: none; }
+  }
+</style>
