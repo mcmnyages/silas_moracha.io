@@ -1,0 +1,64 @@
+---
+// MARKUP ONLY. The behaviour lives in lib/terminal/shell.ts.
+interface Props {
+  handle: string;
+  name: string;
+  home: string;
+}
+const { handle, name, home } = Astro.props;
+---
+
+<div
+  data-terminal
+  data-handle={handle}
+  data-name={name}
+  data-home={home}
+  class="border border-line bg-black/50 font-mono text-[13px] leading-6 backdrop-blur-sm"
+>
+  <div class="flex items-center justify-between border-b border-line px-4 py-2 text-xs text-muted">
+    <span>{handle}: 404 shell</span>
+    <span data-status class="text-accent">scanning…</span>
+  </div>
+
+  <div data-log class="max-h-[320px] min-h-[220px] overflow-y-auto px-4 py-3" aria-live="polite"></div>
+
+  <label class="flex items-center gap-2 border-t border-line px-4 py-3">
+    <span class="whitespace-nowrap">
+      <span class="text-accent">{handle}@portfolio</span><span class="text-muted">:~$</span>
+    </span>
+    <input
+      data-input
+      type="text"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      aria-label="Terminal command"
+      placeholder="type help"
+      class="min-w-0 flex-1 bg-transparent text-inherit outline-none placeholder:text-muted/60"
+    />
+  </label>
+</div>
+
+<style>
+  [data-terminal]:focus-within {
+    outline: 1px solid currentColor;
+    outline-offset: 2px;
+  }
+  [data-log] :global(a) {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>
+
+<script>
+  // Astro bundles this import. Every [data-terminal] on the page gets its own shell.
+  import { mountShell } from '../lib/terminal/shell';
+
+  document.querySelectorAll<HTMLElement>('[data-terminal]').forEach((el) => {
+    mountShell(el, {
+      home: el.dataset.home ?? '/',
+      handle: el.dataset.handle ?? 'user',
+      name: el.dataset.name ?? 'user',
+    });
+  });
+</script>

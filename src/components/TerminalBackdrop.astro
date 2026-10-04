@@ -1,0 +1,94 @@
+---
+// PRESENTATION ONLY. Renders the scrolling background. Runs at build time: zero JS shipped.
+import { backdropLines } from '../data/terminalLines';
+
+interface Props {
+  columns?: number; // how many scrolling columns on wide screens
+  opacity?: number; // overall strength, 0 to 1
+  lines?: string[]; // override the default lines
+}
+
+const { columns = 3, opacity = 0.18, lines = backdropLines } = Astro.props;
+
+// Start each column at a different point in the list so they never look identical.
+const rotate = (arr: string[], n: number) => [...arr.slice(n), ...arr.slice(0, n)];
+const step = Math.max(1, Math.floor(lines.length / columns));
+const cols = Array.from({ length: columns }, (_, i) => ({
+  lines: rotate(lines, i * step),
+  duration: 70 + i * 25, // different speeds give a sense of depth
+}));
+
+const isCmd = (l: string) => l.startsWith('$');
+---
+
+<div class="backdrop" aria-hidden="true" style={`--op:${opacity}`}>
+  <div class="cols">
+    {
+      cols.map((c, i) => (
+        <div class:list={['col', i > 0 && 'hide-sm', i > 1 && 'hide-md']}>
+          {/* The list is rendered twice, so scrolling by -50% loops with no jump. */}
+          <div class="track" style={`--dur:${c.duration}s`}>
+            {[0, 1].map(() =>
+              c.lines.map((l) => <div class={isCmd(l) ? 'ln text-accent' : 'ln out'}>{l}</div>)
+            )}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: var(--op);
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  }
+  .cols {
+    display: flex;
+    gap: 2.5rem;
+    height: 100%;
+    padding: 0 1.5rem;
+  }
+  .col {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  .track {
+    display: flex;
+    flex-direction: column;
+    animation: scroll var(--dur) linear infinite;
+    will-change: transform;
+  }
+  .ln {
+    white-space: pre;
+    overflow: hidden;
+  }
+  .out {
+    opacity: 0.7;
+  }
+  @keyframes scroll {
+    to {
+      transform: translateY(-50%);
+    }
+  }
+  @media (max-width: 1279px) {
+    .hide-md { display: none; }
+  }
+  @media (max-width: 767px) {
+    .hide-sm { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .track { animation: none; }
+  }
+</style>
