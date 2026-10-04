@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../config/site';
+import { withBase } from '../lib/url';
+---
+
+<BaseLayout title={`404 · Page not found | ${site.name}`} description="This page does not exist." noindex>
+  <section class="container-page flex min-h-[100svh] flex-col justify-center pt-16 pb-10">
+    <p class="label">Error · not found</p>
+    <h1 class="display mt-6 text-[38vw] leading-[0.8] lg:text-[22rem]">
+      4<span class="text-accent">0</span>4
+    </h1>
+    <div class="mt-10 grid grid-cols-1 gap-6 border-t border-line pt-6 md:grid-cols-12">
+      <p class="font-mono text-sm md:col-span-6">
+        <span class="text-accent">{site.handle}@portfolio</span><span class="text-muted">:~$</span> cd <span id="path">this-page</span><br />
+        <span class="text-muted">cd: no such file or directory</span>
+      </p>
+      <div class="md:col-span-6 md:text-right">
+        <a href={withBase('/')} class="btn btn-solid">
+          <Icon name="ArrowLeft" size={16} /> Back home
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const el = document.getElementById('path');
+  if (el) el.textContent = window.location.pathname.split('/').filter(Boolean).pop() ?? 'this-page';
+</script>

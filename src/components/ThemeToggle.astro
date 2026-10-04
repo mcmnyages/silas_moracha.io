@@ -1,0 +1,18 @@
+---
+import Icon from './Icon.astro';
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  class="grid size-9 place-items-center border border-line text-muted transition-colors hover:border-fg hover:text-fg"
+  aria-label="Toggle colour theme"
+>
+  <span class="hidden dark:inline"><Icon name="Sun" size={15} /></span>
+  <span class="dark:hidden"><Icon name="Moon" size={15} /></span>
+</button>
+
+<script>
+  import { toggleTheme } from '../lib/theme';
+  document.querySelectorAll('[data-theme-toggle]').forEach((btn) => btn.addEventListener('click', () => toggleTheme()));
+</script>

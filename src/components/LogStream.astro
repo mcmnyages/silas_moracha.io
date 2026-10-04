@@ -1,0 +1,127 @@
+---
+/**
+ * Decorative full-width "terminal activity" that scrolls behind the hero.
+ * Pure CSS animation of build-time text: no JS, near-zero cost, hidden from screen readers.
+ */
+
+// Each column is a different slice of the work: security, full-stack, AI, ops.
+const columns: string[][] = [
+  [
+    '$ nmap -sV -p- 10.10.11.42',
+    'PORT     STATE SERVICE  VERSION',
+    '22/tcp   open  ssh      OpenSSH 8.9p1',
+    '80/tcp   open  http     nginx 1.18.0',
+    '3000/tcp open  ppp?',
+    '$ gobuster dir -u http://10.10.11.42 -w common.txt',
+    '/admin            (Status: 302)',
+    '/api              (Status: 401)',
+    '$ exiftool challenge.jpg | grep -i comment',
+    'Comment : cGljb0NURnttM3Q0ZDR0NH0=',
+    '$ echo cGljb0NURnttM3Q0ZDR0NH0= | base64 -d',
+    'picoCTF{m3t4d4t4}',
+    '$ hashcat -m 0 hash.txt rockyou.txt --quiet',
+    '5f4dcc3b5aa765d61d8327deb882cf99:password',
+    '$ burpsuite --project ctf.burp &',
+    '[+] intercepting 127.0.0.1:8080',
+  ],
+  [
+    '$ git checkout -b feat/refresh-tokens',
+    "Switched to a new branch 'feat/refresh-tokens'",
+    '$ npm run test -- --run',
+    ' ✓ auth.test.ts (12 tests) 184ms',
+    ' ✓ files.test.ts (9 tests) 96ms',
+    ' Tests  21 passed (21)',
+    '$ npx prisma migrate deploy',
+    'Applying migration `20260707_storage_quota`',
+    'All migrations have been successfully applied.',
+    '$ git commit -m "feat(auth): rotate refresh tokens"',
+    '[feat/refresh-tokens 4e1a9c2] 3 files changed',
+    '$ git push origin feat/refresh-tokens',
+    '$ npm run build',
+    'vite v7 building for production...',
+    '✓ 214 modules transformed.',
+    '✓ built in 3.94s',
+  ],
+  [
+    '$ adk run companion_agent',
+    '[agent] loaded 4 tools',
+    '[agent] tool_call → search_repos(user="mcmnyages")',
+    '[agent] tool_result ← 28 repositories',
+    '[agent] response streamed (412 tokens)',
+    '$ python wonderbot.py --model gemini',
+    '> Hi! Ask me anything.',
+    '$ genkit flow:run indexDocuments',
+    '[rag] chunked 128 docs → 1,942 embeddings',
+    '$ genkit flow:run answerQuestion "what is RAG?"',
+    '[rag] retrieved top_k=5 · grounded ✓',
+    '$ encord label --task vla_ego_0421',
+    '[encord] segment 14/32 · caption saved',
+    '[eval] rubric: required ✓ distractor ✓ conflict ✓',
+    '[eval] submission accepted',
+    '$ python -m pytest -q',
+  ],
+  [
+    '$ docker compose up -d',
+    ' ✔ Container postgres   Started',
+    ' ✔ Container api        Started',
+    ' ✔ Container web        Started',
+    '$ curl -sI https://secure-cloud-delta.vercel.app',
+    'HTTP/2 200',
+    'strict-transport-security: max-age=63072000',
+    '$ ssh silas@lab.local',
+    'Welcome to Ubuntu 24.04 LTS',
+    'silas@lab:~$ sudo ufw status',
+    'Status: active',
+    '$ ./gradlew assembleDebug',
+    'BUILD SUCCESSFUL in 41s',
+    '$ mysql -u root world -e "SELECT COUNT(*) FROM city"',
+    '4079',
+    '$ astro build && astro check',
+  ],
+];
+
+const durations = [70, 85, 62, 95];
+---
+
+<div class="log-stream pointer-events-none absolute inset-0 -z-10 overflow-hidden select-none" aria-hidden="true">
+  <div class="grid h-full grid-cols-2 gap-8 px-[clamp(1rem,3.5vw,4.5rem)] md:grid-cols-3 xl:grid-cols-4">
+    {
+      columns.map((lines, i) => (
+        <div class:list={['overflow-hidden', i === 2 && 'hidden md:block', i === 3 && 'hidden xl:block']}>
+          <div class="log-col font-mono text-[0.7rem] leading-[1.9] whitespace-pre" style={`--dur:${durations[i]}s`}>
+            {[...lines, '', ...lines, '', ...lines, '', ...lines, ''].map((l) => (
+              <div class:list={[l.startsWith('$') && 'cmd', (l.includes('✓') || l.includes('✔') || l.includes('{')) && 'ok']}>{l || ' '}</div>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .log-stream {
+    color: color-mix(in oklab, var(--muted) 15%, transparent);
+    /* Fade out at the edges and where the name sits so the foreground stays crisp. */
+    mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 75%, transparent 100%);
+  }
+  .log-col {
+    animation: log-scroll var(--dur) linear infinite;
+  }
+  .log-col :global(.cmd) {
+    color: color-mix(in oklab, var(--text) 14%, transparent);
+  }
+  .log-col :global(.ok) {
+    color: color-mix(in oklab, var(--accent) 26%, transparent);
+  }
+  @keyframes log-scroll {
+    to {
+      transform: translateY(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .log-col {
+      animation: none;
+    }
+  }
+</style>

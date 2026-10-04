@@ -1,0 +1,91 @@
+---
+import { site } from '../config/site';
+import { withBase } from '../lib/url';
+import { education } from '../data/education';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const { title = site.seo.title, description = site.seo.description, noindex = false } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const homeUrl = new URL(withBase('/'), Astro.site).href;
+const ogImage = new URL(withBase('/og.png'), Astro.site).href;
+
+// Structured data: tells search engines this site is about a specific person,
+// which is what powers knowledge-panel style results for name searches.
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': `${homeUrl}#person`,
+      name: site.name,
+      alternateName: site.handle,
+      url: homeUrl,
+      image: ogImage,
+      email: `mailto:${site.email}`,
+      jobTitle: site.role,
+      description: site.seo.description,
+      address: { '@type': 'PostalAddress', addressLocality: 'Eldoret', addressCountry: 'KE' },
+      alumniOf: { '@type': 'CollegeOrUniversity', name: education[0].institution, url: education[0].url },
+      knowsAbout: [
+        'Software Engineering',
+        'Web Development',
+        'Cybersecurity',
+        'Capture The Flag',
+        'React',
+        'TypeScript',
+        'Node.js',
+        'Python',
+        'AI Training Data',
+      ],
+      sameAs: Object.values(site.socials),
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${homeUrl}#website`,
+      url: homeUrl,
+      name: site.name,
+      publisher: { '@id': `${homeUrl}#person` },
+      inLanguage: 'en',
+    },
+  ],
+};
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="author" content={site.name} />
+<meta name="keywords" content={site.seo.keywords.join(', ')} />
+<link rel="canonical" href={canonical} />
+<meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
+<link rel="sitemap" href={withBase('/sitemap-index.xml')} />
+
+<!-- Open Graph (LinkedIn, WhatsApp, Facebook, Discord previews) -->
+<meta property="og:type" content="profile" />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={`${site.name}: ${site.role}`} />
+<meta property="og:locale" content="en_KE" />
+<meta property="profile:first_name" content="Silas" />
+<meta property="profile:last_name" content="Moracha" />
+<meta property="profile:username" content={site.handle} />
+
+<!-- X / Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@McMnyages" />
+<meta name="twitter:creator" content="@McMnyages" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+<script type="application/ld+json" set:html={JSON.stringify(personSchema)} />

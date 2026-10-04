@@ -1,0 +1,121 @@
+---
+import Icon from './Icon.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { site } from '../config/site';
+import { withBase } from '../lib/url';
+
+const links = [
+  { href: '#about', label: 'About' },
+  { href: '#experience', label: 'Experience' },
+  { href: '#projects', label: 'Work' },
+  { href: '#security', label: 'Security' },
+  { href: '#skills', label: 'Toolbox' },
+  { href: '#contact', label: 'Contact' },
+];
+
+const home = withBase('/');
+---
+
+<header id="site-header" class="fixed inset-x-0 top-0 z-50 border-b border-transparent transition-colors duration-300">
+  <nav class="container-page flex h-16 items-center justify-between gap-4" aria-label="Main">
+    <a href={home} class="font-mono text-sm font-medium tracking-tight">
+      <span class="text-accent">~/</span>{site.handle}
+    </a>
+
+    <ul class="hidden items-center gap-7 md:flex">
+      {
+        links.map((l) => (
+          <li>
+            <a
+              href={`${home}${l.href}`}
+              data-nav-link={l.href.slice(1)}
+              class="label transition-colors hover:text-fg data-[active]:text-fg"
+            >
+              <span class="mr-1 inline-block size-1.5 rounded-full bg-accent opacity-0 transition-opacity [[data-active]>&]:opacity-100"></span>
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="flex items-center gap-2">
+      <ThemeToggle />
+      <button
+        id="menu-btn"
+        type="button"
+        class="label grid h-9 place-items-center border border-line px-3 text-fg md:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <span data-open>Menu</span>
+        <span data-close class="hidden">Close</span>
+      </button>
+    </div>
+  </nav>
+
+  <div id="mobile-menu" class="fixed inset-x-0 top-16 bottom-0 hidden flex-col bg-bg md:hidden">
+    <ul class="container-page flex flex-1 flex-col justify-center">
+      {
+        links.map((l, i) => (
+          <li class="border-b border-line">
+            <a href={`${home}${l.href}`} class="flex items-baseline justify-between py-4">
+              <span class="display text-5xl">{l.label}</span>
+              <span class="font-mono text-xs text-accent">0{i + 1}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="container-page flex items-center justify-between py-6 font-mono text-xs text-muted">
+      <a href={`mailto:${site.email}`}>{site.email}</a>
+      <a href={site.socials.github} target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5">
+        <Icon name="github" size={14} /> GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const header = document.getElementById('site-header')!;
+  const onScroll = () => {
+    const scrolled = window.scrollY > 12;
+    header.classList.toggle('bg-bg/85', scrolled);
+    header.classList.toggle('backdrop-blur-md', scrolled);
+    header.classList.toggle('border-line', scrolled);
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // Mobile menu
+  const btn = document.getElementById('menu-btn')!;
+  const menu = document.getElementById('mobile-menu')!;
+  const setOpen = (open: boolean) => {
+    menu.classList.toggle('hidden', !open);
+    menu.classList.toggle('flex', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+    btn.setAttribute('aria-expanded', String(open));
+    btn.querySelector('[data-open]')!.classList.toggle('hidden', open);
+    btn.querySelector('[data-close]')!.classList.toggle('hidden', !open);
+  };
+  btn.addEventListener('click', () => setOpen(menu.classList.contains('hidden')));
+  menu.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) setOpen(false);
+  });
+
+  // Highlight the section currently in view.
+  const links = document.querySelectorAll<HTMLElement>('[data-nav-link]');
+  const spy = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        links.forEach((l) => l.toggleAttribute('data-active', l.dataset.navLink === entry.target.id));
+      }
+    },
+    { rootMargin: '-45% 0px -50% 0px' },
+  );
+  links.forEach((l) => {
+    const section = document.getElementById(l.dataset.navLink!);
+    if (section) spy.observe(section);
+  });
+</script>

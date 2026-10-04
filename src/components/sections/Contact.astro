@@ -1,0 +1,159 @@
+---
+import Section from '../Section.astro';
+import Icon from '../Icon.astro';
+import { site } from '../../config/site';
+
+const hasForm = site.web3formsAccessKey.length > 0;
+const socials = [
+  ['github', site.socials.github, 'GitHub', `@${site.handle}`],
+  ['linkedin', site.socials.linkedin, 'LinkedIn', site.name],
+  ['x', site.socials.x, 'X / Twitter', '@McMnyages'],
+  ['instagram', site.socials.instagram, 'Instagram', `@${site.handle}`],
+] as const;
+
+const field =
+  'w-full border-0 border-b border-line bg-transparent px-0 py-3 text-base text-fg placeholder:text-muted/60 outline-none transition focus:border-accent';
+---
+
+<Section
+  id="contact"
+  model="envelope"
+  index="07"
+  label="Contact"
+  meta={['Reply within 24h', 'EAT (UTC+3)']}
+  title="Let's build something."
+  intro="Hiring, collaborating on a project, or looking for a CTF teammate? My inbox is open and I reply quickly."
+>
+  <div data-reveal>
+    <p class="label mb-3">Write to me</p>
+    <a
+      href={`mailto:${site.email}`}
+      class="group inline-flex max-w-full items-center gap-3 font-display text-[clamp(1.35rem,6.4vw,4.4rem)] leading-none font-bold tracking-tight break-all [font-stretch:100%]"
+    >
+      <span class="link pb-1">{site.email}</span>
+      <Icon
+        name="ArrowUpRight"
+        size={48}
+        class="hidden shrink-0 text-accent transition group-hover:translate-x-1 group-hover:-translate-y-1 sm:block"
+      />
+    </a>
+    <div class="mt-6">
+      <button type="button" id="copy-email" class="btn btn-line" data-email={site.email}>
+        <span data-icon-copy><Icon name="Copy" size={15} /></span>
+        <span data-icon-done class="hidden text-accent"><Icon name="Check" size={15} /></span>
+        <span data-label>Copy address</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-16 grid grid-cols-1 gap-12 md:grid-cols-9 md:gap-8">
+    <ul class="border-t border-line md:col-span-4" data-reveal>
+      {
+        socials.map(([icon, href, label, handle]) => (
+          <li>
+            <a href={href} target="_blank" rel="noopener noreferrer me" class="group flex items-center gap-4 border-b border-line py-4">
+              <Icon name={icon} size={18} class="shrink-0 text-muted transition-colors group-hover:text-accent" />
+              <span class="font-medium">{label}</span>
+              <span class="ml-auto truncate font-mono text-xs text-muted">{handle}</span>
+              <Icon name="ArrowUpRight" size={16} class="shrink-0 text-muted transition group-hover:text-accent" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="md:col-span-5" data-reveal style="--reveal-delay: 80ms">
+      {
+        hasForm ? (
+          <form id="contact-form" action="https://api.web3forms.com/submit" method="POST" class="space-y-6">
+            <input type="hidden" name="access_key" value={site.web3formsAccessKey} />
+            <input type="hidden" name="subject" value={`New message from ${site.name} portfolio`} />
+            <input type="checkbox" name="botcheck" class="hidden" tabindex="-1" autocomplete="off" />
+            <div class="grid gap-6 sm:grid-cols-2">
+              <label class="block">
+                <span class="label">Name</span>
+                <input name="name" required autocomplete="name" class={field} placeholder="Ada Lovelace" />
+              </label>
+              <label class="block">
+                <span class="label">Email</span>
+                <input name="email" type="email" required autocomplete="email" class={field} placeholder="ada@example.com" />
+              </label>
+            </div>
+            <label class="block">
+              <span class="label">Message</span>
+              <textarea name="message" required rows="4" class={`${field} resize-y`} placeholder="Hi Silas, I'd love to talk about…" />
+            </label>
+            <div class="flex flex-wrap items-center gap-4">
+              <button type="submit" class="btn btn-solid">
+                <span data-submit-label>Send message</span> <Icon name="ArrowRight" size={16} />
+              </button>
+              <p data-form-status class="font-mono text-xs" role="status" />
+            </div>
+          </form>
+        ) : (
+          <dl class="grid grid-cols-[7rem_1fr] gap-y-4 border-t border-line pt-4 font-mono text-sm">
+            <dt class="text-muted">Location</dt>
+            <dd>{site.location}</dd>
+            <dt class="text-muted">Timezone</dt>
+            <dd>EAT (UTC+3)</dd>
+            <dt class="text-muted">Status</dt>
+            <dd class="flex items-center gap-2">
+              <span class="status-dot" /> {site.availability}
+            </dd>
+            <dt class="text-muted">Interests</dt>
+            <dd>Full-stack · AppSec · CTFs · AI agents</dd>
+            <dt class="text-muted">Response</dt>
+            <dd>Usually within 24 hours</dd>
+          </dl>
+        )
+      }
+    </div>
+  </div>
+</Section>
+
+<script>
+  // Copy email to clipboard
+  const copyBtn = document.getElementById('copy-email');
+  copyBtn?.addEventListener('click', async () => {
+    const label = copyBtn.querySelector('[data-label]')!;
+    try {
+      await navigator.clipboard.writeText(copyBtn.dataset.email!);
+      copyBtn.querySelector('[data-icon-copy]')!.classList.add('hidden');
+      copyBtn.querySelector('[data-icon-done]')!.classList.remove('hidden');
+      label.textContent = 'Copied';
+      setTimeout(() => {
+        copyBtn.querySelector('[data-icon-copy]')!.classList.remove('hidden');
+        copyBtn.querySelector('[data-icon-done]')!.classList.add('hidden');
+        label.textContent = 'Copy address';
+      }, 2000);
+    } catch {
+      window.location.href = `mailto:${copyBtn.dataset.email}`;
+    }
+  });
+
+  // Submit the contact form without leaving the page.
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const status = form.querySelector<HTMLElement>('[data-form-status]')!;
+    const label = form.querySelector<HTMLElement>('[data-submit-label]')!;
+    const button = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    button.disabled = true;
+    label.textContent = 'Sending…';
+    status.textContent = '';
+    try {
+      const res = await fetch(form.action, { method: 'POST', headers: { Accept: 'application/json' }, body: new FormData(form) });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || 'Something went wrong');
+      form.reset();
+      status.className = 'font-mono text-xs text-accent';
+      status.textContent = 'Message sent. Talk soon!';
+    } catch (err) {
+      status.className = 'font-mono text-xs text-muted';
+      status.textContent = `${(err as Error).message}. Please email me directly.`;
+    } finally {
+      button.disabled = false;
+      label.textContent = 'Send message';
+    }
+  });
+</script>

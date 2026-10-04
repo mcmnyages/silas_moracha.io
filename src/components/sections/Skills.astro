@@ -1,0 +1,34 @@
+---
+import Section from '../Section.astro';
+import { skillGroups } from '../../data/skills';
+---
+
+<Section
+  id="skills"
+  model="chip"
+  index="05"
+  label="Toolbox"
+  meta={[`${skillGroups.length} domains`, `${skillGroups.reduce((n, g) => n + g.items.length, 0)} tools & languages`]}
+  title="What I work with."
+  intro="No made-up percentages. These are the languages, frameworks and tools I've actually shipped or competed with."
+>
+  <dl class="border-t border-line">
+    {
+      skillGroups.map((group, i) => (
+        <div class="grid grid-cols-1 gap-2 border-b border-line py-6 md:grid-cols-9 md:gap-8" data-reveal style={`--reveal-delay: ${i * 40}ms`}>
+          <dt class="label pt-1.5 md:col-span-2">
+            <span class="text-accent">{String(i + 1).padStart(2, '0')}</span>&nbsp;&nbsp;{group.title}
+          </dt>
+          <dd class="font-display text-xl leading-relaxed tracking-tight [font-stretch:100%] sm:text-2xl md:col-span-7">
+            {group.items.map((item, j) => (
+              <>
+                <span class="transition-colors hover:text-accent">{item}</span>
+                {j < group.items.length - 1 && <span class="text-muted/50"> / </span>}
+              </>
+            ))}
+          </dd>
+        </div>
+      ))
+    }
+  </dl>
+</Section>

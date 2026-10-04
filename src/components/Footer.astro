@@ -1,0 +1,22 @@
+---
+import { site } from '../config/site';
+
+const year = new Date().getFullYear();
+const builtAt = new Date().toISOString().slice(0, 10);
+---
+
+<footer class="border-t border-line">
+  <div class="container-page overflow-hidden pt-16">
+    <p class="display text-[min(19vw,26rem)] leading-[0.8] text-surface-2 select-none" aria-hidden="true">
+      Moracha<span class="text-accent">.</span>
+    </p>
+  </div>
+  <div class="container-page label flex flex-col gap-3 border-t border-line py-6 sm:flex-row sm:items-center sm:justify-between">
+    <p>© {year} {site.name}</p>
+    <p>
+      Built with <a href="https://astro.build" class="link text-fg" target="_blank" rel="noopener noreferrer">Astro</a> ·{' '}
+      <a href={`${site.socials.github}/silas_moracha.io`} class="link text-fg" target="_blank" rel="noopener noreferrer">Source</a>
+    </p>
+    <p>Last build <time datetime={builtAt} class="text-fg">{builtAt}</time></p>
+  </div>
+</footer>
