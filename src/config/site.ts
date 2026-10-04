@@ -50,7 +50,7 @@ export const site = {
    * Contact form: create a free access key at https://web3forms.com (it is safe to expose publicly)
    * and paste it here. While empty, the contact section shows a direct email button instead of the form.
    */
-  web3formsAccessKey: '',
+  web3formsAccessKey: 'a89de0ad-cee5-458b-ba61-52399a5a47ad',
 } as const;
 
 export type Site = typeof site;
