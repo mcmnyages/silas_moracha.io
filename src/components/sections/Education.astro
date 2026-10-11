@@ -1,9 +1,50 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import Section from '../Section.astro';
 import Icon from '../Icon.astro';
-import { education, testimonial } from '../../data/education';
+import { testimonial } from '../../data/education';
+import {
+  certCategories,
+  credentialProfiles,
+  degree,
+  featuredCertificates,
+  formatCertDate,
+  otherCertificates,
+  type Certificate,
+} from '../../data/certificates';
 import avatar from '../../assets/images/testimonial-odikie.jpg';
+
+// Featured certificates grouped like folders under the degree (the "root").
+const groups = certCategories
+  .map((cat) => ({ cat, items: featuredCertificates.filter((c) => c.category === cat) }))
+  .filter((g) => g.items.length > 0);
+
+// Viewer order follows the page: degree, tree, then the compact list.
+const ordered: Certificate[] = [degree, ...groups.flatMap((g) => g.items), ...otherCertificates];
+const verifiable = ordered.filter((c) => c.verifyUrl).length;
+
+// Full-size images for the viewer, generated at build time and only downloaded when opened.
+const viewerData = await Promise.all(
+  ordered.map(async (c) => {
+    const full = await getImage({ src: c.image, width: 2000, format: 'webp' });
+    return {
+      id: c.id,
+      title: c.title,
+      issuer: c.issuer,
+      date: formatCertDate(c.date),
+      category: c.category,
+      summary: c.summary,
+      skills: c.skills ?? [],
+      verifyUrl: c.verifyUrl ?? null,
+      driveUrl: c.driveUrl ?? null,
+      src: full.src,
+      width: c.image.width,
+      height: c.image.height,
+    };
+  }),
+);
+
+const year = (c: Certificate) => c.date.slice(0, 4);
 ---
 
 <Section
@@ -11,41 +52,173 @@ import avatar from '../../assets/images/testimonial-odikie.jpg';
   model="mortarboard"
   index="06"
   label="Education"
-  meta={['1 degree', `${education.length - 1} programmes`]}
+  meta={['1 degree', `${ordered.length - 1} certificates`, `${verifiable} verifiable online`]}
   title="Always studying."
 >
-  <ul class="grid grid-cols-1 border-t border-l border-line sm:grid-cols-2 2xl:grid-cols-4">
-    {
-      education.map((e, i) => (
-        <li class="flex flex-col border-r border-b border-line p-6 sm:p-7" data-reveal style={`--reveal-delay: ${(i % 2) * 70}ms`}>
-          <p class="label">{e.period}</p>
-          <h3 class="mt-5 font-display text-2xl font-bold tracking-tight">{e.title}</h3>
-          <p class="mt-1">
-            {e.url ? (
-              <a href={e.url} target="_blank" rel="noopener noreferrer" class="link">
-                {e.institution}
-              </a>
-            ) : (
-              e.institution
-            )}
-          </p>
-          <p class="mt-3 text-sm text-muted">{e.detail}</p>
-          {e.link && (
-            <a
-              href={e.link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="link mt-auto inline-flex w-fit items-center gap-1 pt-5 font-mono text-xs"
-            >
-              {e.link.label} <Icon name="ArrowUpRight" size={13} />
-            </a>
-          )}
-        </li>
-      ))
-    }
-  </ul>
+  <div id="certificates" class="grid scroll-mt-24 grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-12">
+    <!-- Inspector: preview of the selected credential -->
+    <aside class="lg:order-2 lg:col-span-5" data-reveal>
+      <div class="lg:sticky lg:top-24">
+        {
+          ordered.map((c) => (
+            <div data-insp={c.id} hidden={c.id !== degree.id}>
+              <button
+                type="button"
+                data-cert-open={c.id}
+                class="group relative isolate block w-full before:absolute before:inset-0 before:-z-10 before:rotate-[2.2deg] before:border before:border-line before:bg-surface after:absolute after:inset-0 after:-z-10 after:-rotate-[1.4deg] after:border after:border-line after:bg-surface-2"
+                aria-label={`Enlarge ${c.title} certificate`}
+              >
+                <span class="relative block aspect-[4/3] overflow-hidden border border-line bg-surface-2 p-3 sm:p-5">
+                  <Image
+                    src={c.image}
+                    alt={`${c.title} certificate from ${c.issuer}`}
+                    widths={[480, 760, 1000]}
+                    sizes="(min-width: 1024px) 34vw, 92vw"
+                    loading={c.id === degree.id ? 'eager' : 'lazy'}
+                    class="h-full w-full object-contain drop-shadow-[0_12px_22px_rgb(0_0_0/0.28)] transition-transform duration-500 group-hover:scale-[1.02]"
+                  />
+                  <span class="label absolute right-3 bottom-3 flex items-center gap-1.5 bg-bg/90 px-2.5 py-1.5 text-fg">
+                    <Icon name="Maximize2" size={12} /> Enlarge
+                  </span>
+                </span>
+              </button>
 
-  <figure class="mt-20 grid grid-cols-1 gap-6 md:grid-cols-9 md:gap-8" data-reveal>
+              <dl class="mt-8 grid grid-cols-[6.5rem_1fr] gap-x-4 gap-y-2 border-t border-line pt-5 font-mono text-xs">
+                <dt class="text-muted">subject</dt>
+                <dd class="font-sans text-sm font-medium text-fg">{c.title}</dd>
+                <dt class="text-muted">issuer</dt>
+                <dd>
+                  {c.issuerUrl ? (
+                    <a href={c.issuerUrl} target="_blank" rel="noopener noreferrer" class="link">
+                      {c.issuer}
+                    </a>
+                  ) : (
+                    c.issuer
+                  )}
+                </dd>
+                <dt class="text-muted">issued</dt>
+                <dd>{formatCertDate(c.date)}</dd>
+                {c.credentialId && (
+                  <>
+                    <dt class="text-muted">credential</dt>
+                    <dd class="break-all">{c.credentialId}</dd>
+                  </>
+                )}
+                <dt class="text-muted">status</dt>
+                <dd class={c.verifyUrl ? 'text-accent' : 'text-muted'}>{c.verifyUrl ? '✓ verifiable online' : 'issued certificate'}</dd>
+              </dl>
+              <p class="mt-4 text-sm text-muted">{c.summary}</p>
+
+              <div class="mt-6 flex flex-wrap gap-2">
+                {c.verifyUrl && (
+                  <a href={c.verifyUrl} target="_blank" rel="noopener noreferrer" class="btn btn-solid py-2.5 text-xs">
+                    <Icon name="BadgeCheck" size={14} /> Verify
+                  </a>
+                )}
+                {c.driveUrl && (
+                  <a href={c.driveUrl} target="_blank" rel="noopener noreferrer" class="btn btn-line py-2.5 text-xs">
+                    <Icon name="FileText" size={14} /> Original
+                  </a>
+                )}
+                <button type="button" data-cert-open={c.id} class="btn btn-line py-2.5 text-xs">
+                  <Icon name="Maximize2" size={14} /> View
+                </button>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </aside>
+
+    <!-- Tree -->
+    <div class="min-w-0 lg:order-1 lg:col-span-7" data-reveal>
+      <p class="font-mono text-sm text-muted"><span class="text-accent">$</span> tree ~/credentials</p>
+
+      <ul class="cert-tree mt-6" role="list">
+        <li class="cert-root">
+          <button type="button" data-cert-select={degree.id} data-cert-open={degree.id} aria-current="true" class="cert-row">
+            <span class="min-w-0">
+              <span class="label text-accent">Degree</span>
+              <span class="mt-1 block font-display text-2xl font-bold tracking-tight [font-stretch:108%] sm:text-3xl xl:text-4xl">
+                {degree.title}
+              </span>
+              <span class="mt-1 block text-muted">{degree.issuer} · {degree.summary.split(',')[0]}</span>
+            </span>
+            <span class="font-mono text-xs text-muted">{year(degree)}</span>
+          </button>
+
+          <ul role="list">
+            {
+              groups.map((g) => (
+                <li>
+                  <p class="cert-dir">{g.cat.toLowerCase()}/</p>
+                  <ul role="list">
+                    {g.items.map((c) => (
+                      <li>
+                        <button type="button" data-cert-select={c.id} data-cert-open={c.id} class="cert-row">
+                          <span class="min-w-0">
+                            <span class="block font-display text-lg font-bold tracking-tight sm:text-xl">{c.title}</span>
+                            <span class="block text-sm text-muted">{c.issuer}</span>
+                          </span>
+                          <span class="flex shrink-0 items-center gap-2 font-mono text-xs text-muted">
+                            {c.verifyUrl && <Icon name="BadgeCheck" size={14} class="text-accent" label="Verifiable online" />}
+                            {formatCertDate(c.date).replace(/^\d+ /, '')}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))
+            }
+          </ul>
+        </li>
+      </ul>
+
+      <p class="mt-4 font-mono text-xs text-muted">
+        {groups.length} directories, {featuredCertificates.length + 1} credentials
+        <span class="hidden lg:inline">&nbsp;· hover to inspect, click to enlarge</span>
+      </p>
+
+      {
+        otherCertificates.length > 0 && (
+          <div class="mt-10 border-t border-line pt-6">
+            <p class="label mb-3">Also completed</p>
+            <ul class="divide-y divide-line" role="list">
+              {otherCertificates.map((c) => (
+                <li>
+                  <button
+                    type="button"
+                    data-cert-select={c.id}
+                    data-cert-open={c.id}
+                    class="group flex w-full items-baseline justify-between gap-4 py-2.5 text-left"
+                  >
+                    <span class="min-w-0">
+                      <span class="text-sm font-medium transition-colors group-hover:text-accent">{c.title}</span>
+                      <span class="text-sm text-muted"> · {c.issuer}</span>
+                    </span>
+                    <span class="shrink-0 font-mono text-xs text-muted">{year(c)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+
+      <div class="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs">
+        {
+          credentialProfiles.map((p) => (
+            <a href={p.url} target="_blank" rel="noopener noreferrer" class="link inline-flex items-center gap-1">
+              {p.label} <Icon name="ArrowUpRight" size={13} />
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+
+  <figure class="mt-24 grid grid-cols-1 gap-6 md:grid-cols-9 md:gap-8" data-reveal>
     <p class="label md:col-span-2">Kind words</p>
     <div class="md:col-span-7">
       <blockquote class="display text-[clamp(1.9rem,4.5vw,3.25rem)] leading-[1.02] [font-stretch:100%]">
@@ -60,4 +233,140 @@ import avatar from '../../assets/images/testimonial-odikie.jpg';
       </figcaption>
     </div>
   </figure>
+
+  <!-- Viewer -->
+  <dialog
+    data-cert-viewer
+    aria-labelledby="cert-viewer-title"
+    class="m-auto h-dvh max-h-none w-screen max-w-none bg-transparent p-0 text-fg backdrop:bg-bg/90 backdrop:backdrop-blur-sm sm:h-[min(92dvh,60rem)] sm:w-[min(94vw,110rem)]"
+  >
+    <div class="grid h-full grid-rows-[auto_minmax(0,1fr)] border-line bg-surface sm:border lg:grid-cols-[minmax(0,1fr)_22rem] lg:grid-rows-1">
+      <div class="relative flex max-h-[55dvh] min-h-0 items-center justify-center bg-surface-2 p-3 sm:p-8 lg:max-h-none">
+        <img data-cv-img alt="" class="max-h-[calc(55dvh-1.5rem)] max-w-full object-contain shadow-[0_24px_60px_-24px_rgb(0_0_0/0.5)] lg:max-h-full" />
+        <button type="button" data-cv-prev class="absolute top-1/2 left-2 grid size-10 -translate-y-1/2 place-items-center border border-line bg-bg/90 hover:border-accent hover:text-accent sm:left-4" aria-label="Previous certificate">
+          <Icon name="ChevronLeft" size={18} />
+        </button>
+        <button type="button" data-cv-next class="absolute top-1/2 right-2 grid size-10 -translate-y-1/2 place-items-center border border-line bg-bg/90 hover:border-accent hover:text-accent sm:right-4" aria-label="Next certificate">
+          <Icon name="ChevronRight" size={18} />
+        </button>
+      </div>
+
+      <div class="flex min-h-0 flex-col overflow-y-auto border-t border-line p-5 sm:p-7 lg:border-t-0 lg:border-l">
+        <div class="flex items-center justify-between gap-4">
+          <p class="label"><span class="text-accent" data-cv-category></span> · <span data-cv-pos></span></p>
+          <button type="button" data-cv-close class="grid size-9 place-items-center border border-line hover:border-accent hover:text-accent" aria-label="Close">
+            <Icon name="X" size={16} />
+          </button>
+        </div>
+        <h3 id="cert-viewer-title" data-cv-title class="mt-5 font-display text-2xl font-bold tracking-tight sm:text-3xl"></h3>
+        <p data-cv-issuer class="mt-1"></p>
+        <p data-cv-date class="label mt-4"></p>
+        <p data-cv-summary class="mt-4 text-sm text-muted"></p>
+        <ul data-cv-skills class="mt-5 flex flex-wrap gap-1.5"></ul>
+        <div class="mt-auto flex flex-wrap gap-2 pt-8">
+          <a data-cv-verify target="_blank" rel="noopener noreferrer" class="btn btn-solid">
+            <Icon name="BadgeCheck" size={15} /> Verify online
+          </a>
+          <a data-cv-drive target="_blank" rel="noopener noreferrer" class="btn btn-line">
+            <Icon name="FileText" size={15} /> Original
+          </a>
+          <a data-cv-original target="_blank" rel="noopener" class="btn btn-line">
+            Full size <Icon name="ArrowUpRight" size={15} />
+          </a>
+        </div>
+        <p class="mt-4 hidden font-mono text-[0.7rem] text-muted lg:block">← → to browse · Esc to close</p>
+      </div>
+    </div>
+  </dialog>
+  <script type="application/json" data-cert-data set:html={JSON.stringify(viewerData).replace(/</g, '\\u003c')} />
 </Section>
+
+<script>
+  type Cert = {
+    id: string;
+    title: string;
+    issuer: string;
+    date: string;
+    category: string;
+    summary: string;
+    skills: string[];
+    verifyUrl: string | null;
+    driveUrl: string | null;
+    src: string;
+    width: number;
+    height: number;
+  };
+
+  // Inspector: hovering or focusing a row previews that credential.
+  const rows = document.querySelectorAll<HTMLElement>('[data-cert-select]');
+  const panels = document.querySelectorAll<HTMLElement>('[data-insp]');
+  const select = (id: string) => {
+    panels.forEach((p) => (p.hidden = p.dataset.insp !== id));
+    rows.forEach((r) => r.toggleAttribute('aria-current', r.dataset.certSelect === id));
+  };
+  rows.forEach((row) => {
+    row.addEventListener('mouseenter', () => select(row.dataset.certSelect!));
+    row.addEventListener('focus', () => select(row.dataset.certSelect!));
+  });
+
+  const dataEl = document.querySelector<HTMLScriptElement>('[data-cert-data]');
+  const dialog = document.querySelector<HTMLDialogElement>('[data-cert-viewer]');
+
+  if (dataEl && dialog) {
+    const certs = JSON.parse(dataEl.textContent!) as Cert[];
+    const $ = <T extends HTMLElement>(sel: string) => dialog.querySelector<T>(sel)!;
+    const img = $<HTMLImageElement>('[data-cv-img]');
+    const verify = $<HTMLAnchorElement>('[data-cv-verify]');
+    const drive = $<HTMLAnchorElement>('[data-cv-drive]');
+    const original = $<HTMLAnchorElement>('[data-cv-original]');
+    const skills = $('[data-cv-skills]');
+    let index = 0;
+    let opener: HTMLElement | null = null;
+
+    const show = (i: number) => {
+      index = (i + certs.length) % certs.length;
+      const c = certs[index];
+      img.src = c.src;
+      img.width = c.width;
+      img.height = c.height;
+      img.alt = `${c.title} certificate from ${c.issuer}`;
+      $('[data-cv-title]').textContent = c.title;
+      $('[data-cv-issuer]').textContent = c.issuer;
+      $('[data-cv-date]').textContent = c.date;
+      $('[data-cv-category]').textContent = c.category;
+      $('[data-cv-pos]').textContent = `${index + 1} / ${certs.length}`;
+      $('[data-cv-summary]').textContent = c.summary;
+      skills.replaceChildren(
+        ...c.skills.map((s) => {
+          const li = document.createElement('li');
+          li.className = 'tag';
+          li.textContent = s;
+          return li;
+        }),
+      );
+      verify.hidden = !c.verifyUrl;
+      if (c.verifyUrl) verify.href = c.verifyUrl;
+      drive.hidden = !c.driveUrl;
+      if (c.driveUrl) drive.href = c.driveUrl;
+      original.href = c.src;
+      select(c.id);
+    };
+
+    document.querySelectorAll<HTMLElement>('[data-cert-open]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        opener = btn;
+        show(certs.findIndex((c) => c.id === btn.dataset.certOpen));
+        dialog.showModal();
+      }),
+    );
+    $('[data-cv-prev]').addEventListener('click', () => show(index - 1));
+    $('[data-cv-next]').addEventListener('click', () => show(index + 1));
+    $('[data-cv-close]').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => e.target === dialog && dialog.close());
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(index - 1);
+      if (e.key === 'ArrowRight') show(index + 1);
+    });
+    dialog.addEventListener('close', () => opener?.focus());
+  }
+</script>

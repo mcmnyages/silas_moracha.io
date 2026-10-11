@@ -35,7 +35,7 @@ const c = {
     `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer" class="text-fg underline decoration-dotted underline-offset-4 hover:text-accent">${esc(label)}</a>`,
 };
 
-const SECTIONS = ['about', 'experience', 'projects', 'security', 'skills', 'contact'];
+const SECTIONS = ['about', 'experience', 'projects', 'security', 'skills', 'education', 'certificates', 'contact'];
 
 export function initTerminal(root: HTMLElement, data: TerminalData) {
   const output = root.querySelector<HTMLElement>('[data-term-output]')!;

@@ -19,7 +19,7 @@ export interface Command {
   run(ctx: Ctx, args: string[], raw: string): void;
 }
 
-export const sections = ['about', 'experience', 'projects', 'security', 'skills', 'contact'];
+export const sections = ['about', 'experience', 'projects', 'security', 'skills', 'education', 'certificates', 'contact'];
 
 const FLAG_B64 = 'ZmxhZ3s0MDRfbjB0X2YwdW5kX2J1dF95MHVfZjB1bmRfbTN9';
 const FLAG = 'flag{404_n0t_f0und_but_y0u_f0und_m3}';

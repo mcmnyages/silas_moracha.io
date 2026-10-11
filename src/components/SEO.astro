@@ -1,7 +1,7 @@
 ---
 import { site } from '../config/site';
 import { withBase } from '../lib/url';
-import { education } from '../data/education';
+import { certificates, degree } from '../data/certificates';
 
 interface Props {
   title?: string;
@@ -31,7 +31,15 @@ const personSchema = {
       jobTitle: site.role,
       description: site.seo.description,
       address: { '@type': 'PostalAddress', addressLocality: 'Eldoret', addressCountry: 'KE' },
-      alumniOf: { '@type': 'CollegeOrUniversity', name: education[0].institution, url: education[0].url },
+      alumniOf: { '@type': 'CollegeOrUniversity', name: degree.issuer, url: degree.issuerUrl },
+      hasCredential: [degree, ...certificates].map((c) => ({
+        '@type': 'EducationalOccupationalCredential',
+        name: c.title,
+        credentialCategory: c.category === 'Degree' ? 'degree' : 'certificate',
+        dateCreated: c.date,
+        recognizedBy: { '@type': 'Organization', name: c.issuer, ...(c.issuerUrl && { url: c.issuerUrl }) },
+        ...(c.verifyUrl && { url: c.verifyUrl }),
+      })),
       knowsAbout: [
         'Software Engineering',
         'Web Development',
