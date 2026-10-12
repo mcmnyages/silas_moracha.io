@@ -6,9 +6,13 @@ import ccsk from '../assets/certificates/csa-ccsk.jpg';
 import pcap from '../assets/certificates/cisco-pcap.jpg';
 import itEssentials from '../assets/certificates/cisco-it-essentials.jpg';
 import huntress from '../assets/certificates/huntress-ctf-2025.jpg';
+import ethicalHacker from '../assets/certificates/cisco-ethical-hacker.jpg';
+import ccnaSrwe from '../assets/certificates/cisco-ccna-srwe.jpg';
+import networkSecurity from '../assets/certificates/cisco-network-security.jpg';
+import cyberEssentials from '../assets/certificates/cisco-cybersecurity-essentials.jpg';
 
 export const certCategories = ['Development', 'Security', 'Networking'] as const;
-export type CertCategory = 'Degree' | (typeof certCategories)[number];
+export type CertCategory = 'Degree' | 'Competition' | (typeof certCategories)[number];
 
 export interface Certificate {
   id: string;
@@ -87,11 +91,61 @@ const list: Certificate[] = [
     issuer: 'Huntress',
     issuerUrl: 'https://www.huntress.com',
     date: '2025-10',
-    category: 'Security',
+    category: 'Competition',
     image: huntress,
     summary: 'Month-long CTF: 10 of 65 challenges solved, ranked 2,148 of 6,869 teams (9,791 players).',
     skills: ['CTF', 'Blue team', 'Problem solving'],
+  },
+  {
+    id: 'cisco-ethical-hacker',
+    title: 'Ethical Hacker',
+    issuer: 'Cisco Networking Academy',
+    issuerUrl: 'https://www.netacad.com',
+    date: '2026-03-20',
+    category: 'Security',
+    image: ethicalHacker,
+    summary: 'Penetration testing end to end: planning, reconnaissance, exploiting networks, web apps, cloud and IoT, and reporting findings.',
+    skills: ['Penetration testing', 'Kali Linux', 'Reporting'],
+    verifyUrl: 'https://www.credly.com/badges/3d1a4cbc-5b92-4803-b667-b1f848638aa3',
     featured: true,
+  },
+  {
+    id: 'cisco-network-security',
+    title: 'Network Security',
+    issuer: 'Cisco Networking Academy',
+    issuerUrl: 'https://www.netacad.com',
+    date: '2023-01-30',
+    category: 'Security',
+    image: networkSecurity,
+    summary: 'Securing network infrastructure: ACLs, firewalls, IPS, AAA, site-to-site VPNs and the cryptography behind them.',
+    skills: ['Firewalls', 'VPN', 'ACLs'],
+    verifyUrl: 'https://www.credly.com/badges/63d1a473-a08c-402f-abee-9c1e1a2fa4f7',
+    featured: true,
+  },
+  {
+    id: 'cisco-ccna-srwe',
+    title: 'CCNA: Switching, Routing and Wireless Essentials',
+    issuer: 'Cisco Networking Academy',
+    issuerUrl: 'https://www.netacad.com',
+    date: '2023-08-23',
+    category: 'Networking',
+    image: ccnaSrwe,
+    summary: 'Second course of the CCNA track: VLANs, inter-VLAN routing, STP, EtherChannel, DHCP, WLANs and static routing.',
+    skills: ['Switching', 'Routing', 'Wireless'],
+    verifyUrl: 'https://www.credly.com/badges/c51b91ac-df31-4032-b85f-56371eee5aa6',
+    featured: true,
+  },
+  {
+    id: 'cisco-cybersecurity-essentials',
+    title: 'Cybersecurity Essentials',
+    issuer: 'Cisco Networking Academy',
+    issuerUrl: 'https://www.netacad.com',
+    date: '2022-07-30',
+    category: 'Security',
+    image: cyberEssentials,
+    summary: 'Attacker tactics, the CIA triad, cryptography and the controls used to protect data and systems.',
+    skills: ['Security fundamentals', 'Cryptography'],
+    verifyUrl: 'https://www.credly.com/badges/060e480a-e01b-43d4-9b26-e840559dbd4f',
   },
   {
     id: 'csa-ccsk',
@@ -126,19 +180,37 @@ const list: Certificate[] = [
     image: itEssentials,
     summary: 'Building, maintaining and troubleshooting computers, operating systems and small networks.',
     skills: ['Hardware', 'Windows & Linux', 'LAN'],
-    verifyUrl: 'https://www.credly.com/users/silas-moracha',
+    verifyUrl: 'https://www.credly.com/badges/82ed961f-f303-49d9-ba9e-e508154d5a44',
   },
 ];
 
 export const certificates = [...list].sort((a, b) => b.date.localeCompare(a.date));
 export const featuredCertificates = certificates.filter((c) => c.featured);
-export const otherCertificates = certificates.filter((c) => !c.featured);
+// Competitions (CTF results) go to the end of the compact list.
+export const otherCertificates = certificates
+  .filter((c) => !c.featured)
+  .sort((a, b) => Number(a.category === 'Competition') - Number(b.category === 'Competition'));
 
 /** Profiles that hold further verified credentials. */
 export const credentialProfiles = [
-  { label: 'Cisco badges on Credly', url: 'https://www.credly.com/users/silas-moracha' },
-  { label: 'SoloLearn certificates', url: 'https://www.sololearn.com/profile/23761992' },
-  { label: 'Full Stack Open coursework', url: 'https://github.com/mcmnyages/fullstackopen' },
+  {
+    platform: 'Credly',
+    label: 'All Cisco badges',
+    note: 'Every Networking Academy badge, each verifiable',
+    url: 'https://www.credly.com/users/silas-moracha',
+  },
+  {
+    platform: 'SoloLearn',
+    label: 'Programming certificates',
+    note: 'Self-paced language courses',
+    url: 'https://www.sololearn.com/profile/23761992',
+  },
+  {
+    platform: 'GitHub',
+    label: 'Full Stack Open coursework',
+    note: 'Exercise solutions behind the certificates',
+    url: 'https://github.com/mcmnyages/fullstackopen',
+  },
 ];
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

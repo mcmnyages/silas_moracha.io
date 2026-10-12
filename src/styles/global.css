@@ -236,6 +236,16 @@
 .cert-row[aria-current] .font-display {
   color: var(--accent);
 }
+.cert-arrow {
+  color: var(--muted);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.cert-row:hover .cert-arrow,
+.cert-row[aria-current] .cert-arrow,
+button:hover > span > .cert-arrow {
+  color: var(--accent);
+  transform: translate(2px, -2px);
+}
 
 /* ---------- Scroll reveal ---------- */
 .js [data-reveal] {
