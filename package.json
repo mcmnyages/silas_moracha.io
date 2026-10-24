@@ -13,7 +13,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "astro": "astro",
-    "images": "node scripts/generate-images.mjs"
+    "images": "node scripts/generate-images.mjs",
+    "redact": "node scripts/redact.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
