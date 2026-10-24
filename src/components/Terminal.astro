@@ -1,11 +1,6 @@
 ---
 import { site } from '../config/site';
-import { skillGroups } from '../data/skills';
-import { projects } from '../data/projects';
-import { experience } from '../data/experience';
-import { getGitHubData } from '../lib/github';
-import { repoUrl } from '../lib/url';
-import type { TerminalData } from '../lib/terminal';
+import { getTerminalData } from '../lib/terminal/data';
 
 interface Props {
   /** Commands the terminal types by itself on load. */
@@ -15,26 +10,10 @@ interface Props {
 }
 
 const { autoplay = [], bodyClass = 'h-[20rem] sm:h-[22rem]' } = Astro.props;
-const gh = await getGitHubData();
-
-const data: TerminalData = {
-  name: site.name,
-  handle: site.handle,
-  role: site.role,
-  location: site.location,
-  email: site.email,
-  availability: site.availability,
-  socials: { ...site.socials },
-  skills: skillGroups,
-  projects: projects
-    .filter((p) => p.featured)
-    .map((p) => ({ title: p.title, url: repoUrl(site.handle, p.repo), description: p.description, stack: p.stack })),
-  experience: experience.map(({ role, company, period }) => ({ role, company, period })),
-  stats: { repos: gh.publicRepos, memberSince: gh.memberSince, topLanguages: gh.languages.map((l) => l.name) },
-};
+const data = await getTerminalData();
 
 const chips = ['help', 'projects', 'neofetch', 'hire'];
-const prompt = `<span class="text-accent">${site.handle}@portfolio</span><span class="text-muted">:~$</span>`;
+const prompt = (cwd = '~') => `<span class="text-accent">${site.handle}@portfolio</span><span class="text-muted">:${cwd}$</span>`;
 ---
 
 <div data-terminal data-autoplay={autoplay.join('|')}>
@@ -53,7 +32,7 @@ const prompt = `<span class="text-accent">${site.handle}@portfolio</span><span c
       >
         <!-- Pre-rendered so crawlers and no-JS visitors still see real content. -->
         <div data-term-output aria-live="polite">
-          <div><Fragment set:html={prompt} /> whoami</div>
+          <div><Fragment set:html={prompt()} /> whoami</div>
           <div><span class="font-semibold">{site.name}</span> <span class="text-muted">(@{site.handle})</span></div>
           <div>{site.role}</div>
           <div class="text-muted">{site.location}</div>
@@ -63,7 +42,7 @@ const prompt = `<span class="text-accent">${site.handle}@portfolio</span><span c
         </div>
         <form class="flex items-center gap-2" autocomplete="off">
           <label for="term-input" class="shrink-0">
-            <Fragment set:html={prompt} />
+            <Fragment set:html={prompt('<span data-term-cwd>~</span>')} />
             <span class="sr-only">Terminal command</span>
           </label>
           <input
@@ -96,10 +75,6 @@ const prompt = `<span class="text-accent">${site.handle}@portfolio</span><span c
 </div>
 
 <script>
-  import { initTerminal, type TerminalData } from '../lib/terminal';
-
-  document.querySelectorAll<HTMLElement>('[data-terminal]').forEach((root) => {
-    const data = JSON.parse(root.querySelector('[data-term-data]')!.textContent!) as TerminalData;
-    initTerminal(root, data);
-  });
+  import { mountAll } from '../lib/terminal/shell';
+  mountAll();
 </script>
