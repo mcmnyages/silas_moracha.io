@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# unredacted image originals and redaction previews (never commit)
+.originals/
+.redact-preview/
