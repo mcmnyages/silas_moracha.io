@@ -2,7 +2,7 @@
 
 Personal portfolio of **Silas Moracha**: software engineer, cybersecurity enthusiast and AI training-data specialist.
 
-**Live:** https://mcmnyages.github.io/silas_moracha.io/
+**Live:** https://silas.lacefi.co.ke/
 
 Built with [Astro](https://astro.build), TypeScript and Tailwind CSS. Every page is pre-rendered to static HTML, so it loads fast and is fully readable by search engines and link-preview bots. JavaScript is used only for the extras: the terminal, the 3D objects, the theme toggle and animations.
 
@@ -38,7 +38,7 @@ Requires Node.js 22.12+.
 
 ```sh
 npm install
-npm run dev       # http://localhost:4321/silas_moracha.io/
+npm run dev       # http://localhost:4321/
 npm run build     # type-check + production build into dist/
 npm run preview   # serve the production build
 ```
@@ -68,4 +68,4 @@ Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds the site
 
 One-time setup: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
-To move to a custom domain, or to rename the repo to `mcmnyages.github.io`, update `SITE` and `BASE` in `astro.config.mjs`.
+The site is served from the custom domain in `public/CNAME`. To change domains, update `SITE` in `astro.config.mjs` and `public/CNAME` together.

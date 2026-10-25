@@ -39,7 +39,7 @@ const overlay = `
     <text x="58" y="270" font-size="140">Silas</text>
     <text x="58" y="420" font-size="140">Moracha<tspan fill="#ff5b14">.</tspan></text>
   </g>
-  <text x="64" y="600" font-family="Consolas, 'IBM Plex Mono', monospace" font-size="20" fill="#ff5b14">mcmnyages.github.io/silas_moracha.io</text>
+  <text x="64" y="600" font-family="Consolas, 'IBM Plex Mono', monospace" font-size="20" fill="#ff5b14">silas.lacefi.co.ke</text>
 </svg>`;
 
 await sharp({ create: { width: W, height: H, channels: 4, background: '#0f0f0d' } })

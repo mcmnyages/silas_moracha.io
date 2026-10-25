@@ -2,7 +2,7 @@
 
 // JavaScript to generate QR code with image at the center
 <script>
-  var websiteURL = "https://mcmnyages.github.io/silas_moracha.io"; // Replace with your website URL
+  var websiteURL = "https://silas.lacefi.co.ke"; // Replace with your website URL
   var qrCode = new QRCode(document.getElementById("qrcode"), {
     width: 200,
     height: 200
