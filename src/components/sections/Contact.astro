@@ -45,9 +45,14 @@ const field =
         <span data-label>Copy address</span>
       </button>
       {cv && (
-        <a href={cv.href} download={cv.downloadName} class="btn btn-solid">
-          <Icon name="Download" size={15} /> Download CV (PDF)
-        </a>
+        <>
+          <a href={cv.href} target="_blank" rel="noopener" data-cv-preview class="btn btn-line">
+            <Icon name="Eye" size={15} /> Preview CV
+          </a>
+          <a href={cv.href} download={cv.downloadName} class="btn btn-solid">
+            <Icon name="Download" size={15} /> Download CV (PDF)
+          </a>
+        </>
       )}
     </div>
   </div>

@@ -245,9 +245,14 @@ export const commands: Command[] = [
   },
   {
     name: 'cv',
-    help: 'download my CV (PDF)',
-    run: ({ data }) => {
+    help: 'view my CV; `cv download` saves the PDF',
+    complete: () => ['download'],
+    run: ({ data }, [arg]) => {
       if (!data.cv) return [c.muted('No CV published yet. Try `contact` instead.')];
+      if (arg !== 'download') {
+        window.dispatchEvent(new Event('cv:preview'));
+        return [`${c.muted('opening')} ${c.link(data.cv.href, esc(data.cv.downloadName))} ${c.muted('(cv download to save it)')}`];
+      }
       const a = document.createElement('a');
       a.href = data.cv.href;
       a.download = data.cv.downloadName;

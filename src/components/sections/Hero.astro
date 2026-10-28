@@ -59,9 +59,20 @@ const year = new Date().getFullYear();
             Contact <Icon name="ArrowUpRight" size={16} />
           </a>
           {cv && (
-            <a href={cv.href} download={cv.downloadName} class="btn btn-line justify-between sm:min-w-44">
-              Download CV <Icon name="Download" size={16} />
-            </a>
+            <span class="flex sm:min-w-44">
+              <a href={cv.href} target="_blank" rel="noopener" data-cv-preview class="btn btn-line flex-1 justify-between">
+                View CV <Icon name="Eye" size={16} />
+              </a>
+              <a
+                href={cv.href}
+                download={cv.downloadName}
+                class="btn btn-line -ml-px px-3.5"
+                aria-label="Download CV (PDF)"
+                title="Download CV (PDF)"
+              >
+                <Icon name="Download" size={16} />
+              </a>
+            </span>
           )}
         </div>
       </div>

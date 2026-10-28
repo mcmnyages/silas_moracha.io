@@ -1,0 +1,79 @@
+---
+/**
+ * In-page CV preview. Any link with `data-cv-preview` (pointing at the PDF, target=_blank)
+ * opens it here instead. Browsers that can't show PDFs inline (most phones) just follow
+ * the link and use their own viewer in a new tab.
+ */
+import Icon from './Icon.astro';
+import { site } from '../config/site';
+import { cv } from '../lib/cv';
+---
+
+{
+  cv && (
+    <dialog
+      data-resume-viewer
+      data-src={cv.href}
+      aria-label={`${site.name} CV`}
+      class="m-auto h-dvh max-h-none w-screen max-w-none bg-transparent p-0 text-fg backdrop:bg-bg/90 backdrop:backdrop-blur-sm sm:h-[min(94dvh,64rem)] sm:w-[min(94vw,64rem)]"
+    >
+      <div class="grid h-full grid-rows-[auto_minmax(0,1fr)] border-line bg-surface sm:border">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3 sm:px-5">
+          <p class="font-mono text-xs text-muted">
+            <span class="text-accent">$</span> less {cv.downloadName}
+          </p>
+          <div class="flex items-center gap-2">
+            <a href={cv.href} download={cv.downloadName} class="btn btn-solid py-2 text-xs">
+              <Icon name="Download" size={14} /> Download
+            </a>
+            <a href={cv.href} target="_blank" rel="noopener" class="btn btn-line hidden py-2 text-xs sm:inline-flex">
+              New tab <Icon name="ArrowUpRight" size={14} />
+            </a>
+            <button
+              type="button"
+              data-resume-close
+              class="grid size-9 place-items-center border border-line hover:border-accent hover:text-accent"
+              aria-label="Close"
+            >
+              <Icon name="X" size={16} />
+            </button>
+          </div>
+        </div>
+        <iframe data-resume-frame title={`${site.name} CV`} class="h-full w-full bg-surface-2" />
+      </div>
+    </dialog>
+  )
+}
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-resume-viewer]');
+
+  if (dialog) {
+    const frame = dialog.querySelector<HTMLIFrameElement>('[data-resume-frame]')!;
+    let opener: HTMLElement | null = null;
+
+    // Loaded on first open only, so the PDF isn't fetched for every visitor.
+    const open = (from: HTMLElement | null) => {
+      opener = from;
+      if (!frame.src) frame.src = `${dialog.dataset.src}#view=FitH&navpanes=0`;
+      dialog.showModal();
+    };
+
+    document.querySelectorAll<HTMLAnchorElement>('a[data-cv-preview]').forEach((a) =>
+      a.addEventListener('click', (e) => {
+        if (!navigator.pdfViewerEnabled || e.metaKey || e.ctrlKey || e.shiftKey) return;
+        e.preventDefault();
+        open(a);
+      }),
+    );
+    // The terminal's `cv` command asks for the viewer through this event.
+    window.addEventListener('cv:preview', () => {
+      if (navigator.pdfViewerEnabled) open(null);
+      else window.open(dialog.dataset.src, '_blank', 'noopener');
+    });
+
+    dialog.querySelector('[data-resume-close]')!.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => e.target === dialog && dialog.close());
+    dialog.addEventListener('close', () => opener?.focus());
+  }
+</script>
