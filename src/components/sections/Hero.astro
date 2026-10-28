@@ -5,6 +5,7 @@ import LogStream from '../LogStream.astro';
 import Object3D from '../Object3D.astro';
 import { site } from '../../config/site';
 import { experience } from '../../data/experience';
+import { cv } from '../../lib/cv';
 
 const current = experience[0];
 const previous = experience.find((e) => e.type === 'Full-time');
@@ -49,13 +50,19 @@ const year = new Date().getFullYear();
         <p class="mt-8 max-w-2xl text-lg leading-relaxed sm:text-xl xl:text-2xl" data-reveal style="--reveal-delay: 160ms">
           {site.tagline}
         </p>
-        <div class="mt-8 flex flex-wrap gap-3" data-reveal style="--reveal-delay: 220ms">
-          <a href="#projects" class="btn btn-solid min-w-44 justify-between">
+        <!-- Phones: "View work" on its own row, the rest paired below. -->
+        <div class="mt-8 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap" data-reveal style="--reveal-delay: 220ms">
+          <a href="#projects" class={`btn btn-solid justify-between sm:min-w-44 ${cv ? 'col-span-2' : ''}`}>
             View work <Icon name="ArrowDown" size={16} />
           </a>
-          <a href="#contact" class="btn btn-line min-w-44 justify-between">
+          <a href="#contact" class="btn btn-line justify-between sm:min-w-44">
             Contact <Icon name="ArrowUpRight" size={16} />
           </a>
+          {cv && (
+            <a href={cv.href} download={cv.downloadName} class="btn btn-line justify-between sm:min-w-44">
+              Download CV <Icon name="Download" size={16} />
+            </a>
+          )}
         </div>
       </div>
 

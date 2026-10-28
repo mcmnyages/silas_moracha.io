@@ -244,6 +244,18 @@ export const commands: Command[] = [
     },
   },
   {
+    name: 'cv',
+    help: 'download my CV (PDF)',
+    run: ({ data }) => {
+      if (!data.cv) return [c.muted('No CV published yet. Try `contact` instead.')];
+      const a = document.createElement('a');
+      a.href = data.cv.href;
+      a.download = data.cv.downloadName;
+      a.click();
+      return [`${c.muted('downloading')} ${c.link(data.cv.href, esc(data.cv.downloadName))} ...`];
+    },
+  },
+  {
     name: 'theme',
     help: 'switch theme: theme [dark|light]',
     complete: () => ['dark', 'light'],

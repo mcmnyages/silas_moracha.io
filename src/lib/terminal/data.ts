@@ -5,6 +5,7 @@ import { projects } from '../../data/projects';
 import { experience } from '../../data/experience';
 import { getGitHubData } from '../github';
 import { repoUrl, withBase } from '../url';
+import { cv } from '../cv';
 import type { TerminalData } from './types';
 
 const slugify = (s: string) =>
@@ -25,6 +26,7 @@ export async function getTerminalData(): Promise<TerminalData> {
     availability: site.availability,
     home: withBase('/'),
     socials: { ...site.socials },
+    cv,
     skills: skillGroups,
     projects: projects.map((p) => ({
       slug: p.repo.toLowerCase(),

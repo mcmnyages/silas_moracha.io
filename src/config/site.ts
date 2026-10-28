@@ -48,6 +48,16 @@ export const site = {
   },
 
   /**
+   * CV: put the PDF at public/cv.pdf (served at /cv.pdf). Every CV button on the site
+   * appears only while that file exists, so removing it simply hides them.
+   */
+  cv: {
+    file: 'cv.pdf',
+    /** Name the file is saved under when someone downloads it. */
+    downloadName: 'Silas-Moracha-CV.pdf',
+  },
+
+  /**
    * Contact form: create a free access key at https://web3forms.com (it is safe to expose publicly)
    * and paste it here. While empty, the contact section shows a direct email button instead of the form.
    */

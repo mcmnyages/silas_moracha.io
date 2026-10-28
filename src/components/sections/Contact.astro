@@ -2,6 +2,7 @@
 import Section from '../Section.astro';
 import Icon from '../Icon.astro';
 import { site } from '../../config/site';
+import { cv } from '../../lib/cv';
 
 const hasForm = site.web3formsAccessKey.length > 0;
 const socials = [
@@ -37,12 +38,17 @@ const field =
         class="hidden shrink-0 text-accent transition group-hover:translate-x-1 group-hover:-translate-y-1 sm:block"
       />
     </a>
-    <div class="mt-6">
+    <div class="mt-6 flex flex-wrap gap-3">
       <button type="button" id="copy-email" class="btn btn-line" data-email={site.email}>
         <span data-icon-copy><Icon name="Copy" size={15} /></span>
         <span data-icon-done class="hidden text-accent"><Icon name="Check" size={15} /></span>
         <span data-label>Copy address</span>
       </button>
+      {cv && (
+        <a href={cv.href} download={cv.downloadName} class="btn btn-solid">
+          <Icon name="Download" size={15} /> Download CV (PDF)
+        </a>
+      )}
     </div>
   </div>
 

@@ -11,6 +11,8 @@ export interface TerminalData {
   /** Site root with the deploy base, e.g. `/silas_moracha.io/`. */
   home: string;
   socials: Record<string, string>;
+  /** Link to the CV PDF, or null when none is published. */
+  cv: { href: string; downloadName: string } | null;
   skills: { command: string; title: string; items: string[] }[];
   projects: {
     slug: string;

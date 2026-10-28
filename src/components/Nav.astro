@@ -3,6 +3,7 @@ import Icon from './Icon.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import { site } from '../config/site';
 import { withBase } from '../lib/url';
+import { cv } from '../lib/cv';
 
 const links = [
   { href: '#about', label: 'About' },
@@ -41,6 +42,15 @@ const home = withBase('/');
     </ul>
 
     <div class="flex items-center gap-2">
+      {cv && (
+        <a
+          href={cv.href}
+          download={cv.downloadName}
+          class="label hidden h-9 items-center gap-1.5 border border-line px-3 text-fg transition-colors hover:border-accent hover:text-accent sm:flex"
+        >
+          <Icon name="Download" size={13} /> CV
+        </a>
+      )}
       <ThemeToggle />
       <button
         id="menu-btn"
@@ -70,6 +80,11 @@ const home = withBase('/');
     </ul>
     <div class="container-page flex items-center justify-between py-6 font-mono text-xs text-muted">
       <a href={`mailto:${site.email}`}>{site.email}</a>
+      {cv && (
+        <a href={cv.href} download={cv.downloadName} class="flex items-center gap-1.5 text-fg">
+          <Icon name="Download" size={14} /> CV
+        </a>
+      )}
       <a href={site.socials.github} target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5">
         <Icon name="github" size={14} /> GitHub
       </a>
