@@ -41,7 +41,7 @@ export const site = {
 
   socials: {
     github: 'https://github.com/mcmnyages',
-    linkedin: 'https://www.linkedin.com/in/mcmnyages',
+    linkedin: 'https://www.linkedin.com/in/silas-moracha',
     x: 'https://x.com/McMnyages',
     instagram: 'https://www.instagram.com/mcmnyages',
     credly: 'https://www.credly.com/users/silas-moracha',
