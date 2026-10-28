@@ -3,6 +3,8 @@ import { Image, getImage } from 'astro:assets';
 import Section from '../Section.astro';
 import Icon from '../Icon.astro';
 import { testimonial } from '../../data/education';
+import { site } from '../../config/site';
+import { getCredlyBadges } from '../../lib/credly';
 import {
   certCategories,
   credentialProfiles,
@@ -49,6 +51,9 @@ const viewerData = await Promise.all(
 );
 
 const year = (c: Certificate) => c.date.slice(0, 4);
+
+const badges = await getCredlyBadges();
+const credlyPath = site.socials.credly.replace(/^https?:\/\/(www\.)?/, '');
 ---
 
 <Section
@@ -224,9 +229,55 @@ const year = (c: Certificate) => c.date.slice(0, 4);
         )
       }
 
+      <!-- Credly: every badge from the public profile, fetched at build time -->
+      <div id="credly" class="mt-10 scroll-mt-24 border border-line bg-surface">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-line p-4 sm:p-5">
+          <div class="min-w-0">
+            <p class="font-mono text-xs text-muted">
+              <span class="text-accent">$</span> curl {credlyPath}
+            </p>
+            <p class="mt-2 font-display text-xl font-bold tracking-tight sm:text-2xl">
+              {badges.length > 0 ? `${badges.length} verified badges on Credly` : 'Verified badges on Credly'}
+            </p>
+          </div>
+          <a href={site.socials.credly} target="_blank" rel="noopener noreferrer" class="btn btn-solid w-full sm:w-auto">
+            <Icon name="BadgeCheck" size={15} /> View Credly profile <Icon name="ArrowUpRight" size={15} />
+          </a>
+        </div>
+        {
+          badges.length > 0 && (
+            <ul class="grid grid-cols-3 sm:grid-cols-4 xl:grid-cols-6" role="list">
+              {badges.map((b) => (
+                <li class="-mr-px -mb-px border-r border-b border-line">
+                  <a
+                    href={b.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="group flex h-full flex-col items-center gap-3 p-3 text-center transition-colors hover:bg-bg sm:p-4"
+                    title={`${b.name} · ${b.issuer} · verify on Credly`}
+                  >
+                    <img
+                      src={b.image}
+                      alt={`${b.name} badge`}
+                      width="110"
+                      height="110"
+                      loading="lazy"
+                      decoding="async"
+                      class="size-16 object-contain grayscale-[0.85] transition duration-300 group-hover:scale-105 group-hover:grayscale-0 sm:size-20"
+                    />
+                    <span class="line-clamp-2 text-xs leading-snug font-medium transition-colors group-hover:text-accent">{b.name}</span>
+                    <span class="mt-auto font-mono text-[0.68rem] text-muted">{b.issuedAt.slice(0, 4)}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+
       <div class="mt-10 border-t border-line pt-6">
         <p class="label mb-3">See more on other platforms</p>
-        <ul class="grid grid-cols-1 gap-3 sm:grid-cols-3" role="list">
+        <ul class="grid grid-cols-1 gap-3 sm:grid-cols-2" role="list">
           {
             credentialProfiles.map((p) => (
               <li>

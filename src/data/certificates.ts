@@ -191,14 +191,8 @@ export const otherCertificates = certificates
   .filter((c) => !c.featured)
   .sort((a, b) => Number(a.category === 'Competition') - Number(b.category === 'Competition'));
 
-/** Profiles that hold further verified credentials. */
+/** Profiles that hold further credentials (Credly has its own badge wall, see lib/credly.ts). */
 export const credentialProfiles = [
-  {
-    platform: 'Credly',
-    label: 'All Cisco badges',
-    note: 'Every Networking Academy badge, each verifiable',
-    url: 'https://www.credly.com/users/silas-moracha',
-  },
   {
     platform: 'SoloLearn',
     label: 'Programming certificates',

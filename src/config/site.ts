@@ -44,6 +44,7 @@ export const site = {
     linkedin: 'https://www.linkedin.com/in/mcmnyages',
     x: 'https://x.com/McMnyages',
     instagram: 'https://www.instagram.com/mcmnyages',
+    credly: 'https://www.credly.com/users/silas-moracha',
   },
 
   /**
