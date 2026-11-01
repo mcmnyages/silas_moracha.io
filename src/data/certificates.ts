@@ -6,12 +6,13 @@ import ccsk from '../assets/certificates/csa-ccsk.jpg';
 import pcap from '../assets/certificates/cisco-pcap.jpg';
 import itEssentials from '../assets/certificates/cisco-it-essentials.jpg';
 import huntress from '../assets/certificates/huntress-ctf-2025.jpg';
+import cyberweek from '../assets/certificates/cyberweek-hackathon-2026.jpg';
 import ethicalHacker from '../assets/certificates/cisco-ethical-hacker.jpg';
 import ccnaSrwe from '../assets/certificates/cisco-ccna-srwe.jpg';
 import networkSecurity from '../assets/certificates/cisco-network-security.jpg';
 import cyberEssentials from '../assets/certificates/cisco-cybersecurity-essentials.jpg';
 
-export const certCategories = ['Development', 'Security', 'Networking'] as const;
+export const certCategories = ['Development', 'Security', 'Networking', 'Competition'] as const;
 export type CertCategory = 'Degree' | 'Competition' | (typeof certCategories)[number];
 
 export interface Certificate {
@@ -83,6 +84,19 @@ const list: Certificate[] = [
     skills: ['GraphQL', 'Apollo', 'React'],
     verifyUrl: 'https://courses.mooc.fi/certificates/validate/2w2gcxh8qem3p3t',
     credentialId: '2w2gcxh8qem3p3t',
+    featured: true,
+  },
+  {
+    id: 'cyberweek-hackathon-2026',
+    title: 'Kenya National Cybersecurity Hackathon 2026',
+    issuer: 'Ministry of ICT & the Digital Economy · EU · Expertise France',
+    issuerUrl: 'https://ict.go.ke',
+    date: '2026-10-29',
+    category: 'Competition',
+    image: cyberweek,
+    summary:
+      'Took part in the national cybersecurity hackathon held during Cyber Week Africa 2026 at the Iconic Plaza Hotel, Nairobi, run by the Ministry of ICT and the Digital Economy with EU funding through Expertise France.',
+    skills: ['Cybersecurity', 'Hackathon', 'Teamwork'],
     featured: true,
   },
   {
